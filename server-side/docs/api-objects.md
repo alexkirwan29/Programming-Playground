@@ -63,7 +63,9 @@ The description of the item.
 ```json
 {
 	"inv_id": 42,
-	"name": "Player Inventory"
+	"name": "Player Inventory",
+	"items": [2,5,9,4,33,281,12,3],
+	"quantities": [1,4,22935,125,103,99,1,1]
 }
 ```
 
