@@ -1,0 +1,10 @@
+version: '3.4'
+
+services:
+  pp-api:
+    build: .
+    image: builds/pp-api
+    volumes:
+      - .:/usr/src/app
+    ports:
+      - 5600:80
