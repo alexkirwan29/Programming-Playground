@@ -3,7 +3,22 @@ version: '3.4'
 services:
   pp-api:
     build: ./pp-api
+    restart: always
     volumes:
       - ./pp-api:/usr/src/api
     ports:
       - 5600:80
+  
+  database:
+    image: mysql:8
+    restart: always
+    env_file:
+      - ./server-side.env
+    ports:
+      - 3306:3306
+  
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
