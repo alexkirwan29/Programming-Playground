@@ -1,19 +1,3 @@
-# Response
-All Requests to the API will return the following response unless the HTTP code is `204 No Content`.
-
-## Example
-```json
-{
-	"data": null,
-	"error": null,
-}
-```
-
-## Variables
-
-### `data` *object*
-The data must be another json object or a string. `null` is used when no data is present.
-
 ### `error` *[error](#Error)*
 The error that is returned with this response. `null` is used when no error is present.
 
