@@ -14,6 +14,11 @@ View the project on [GitHub](https://github.com/alexkirwan29/Programming-Playgro
 Join the discord discussion at [the Discord](https://discord.gg/yQYbUQJ)
 
 ---
+
+## Database Table Relations
+![schema](./schema.png)
+
+---
 API prepared by [Those45Ninjas](https://github.com/those45ninjas).
 
 ![45ninjas's profile](https://avatars2.githubusercontent.com/u/13611308?s=80&v=4)
