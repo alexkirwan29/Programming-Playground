@@ -1,17 +1,13 @@
 from flask import Flask, request
 from flask_restful import Resource, Api
 
-# Import the docs 'homepage'
-from .docs import docs
-
 # Import the resources for players, items and inventories.
 from .players import Player, PlayerList
 from .items import Item, ItemList
 from .inventories import Inventory
 
 # Create our flask App and Api.
-app = Flask(__name__, template_folder='../docs/templates')
-app.register_blueprint(docs)
+app = Flask(__name__)
 api = Api(app)
 
 # Add the player resources.

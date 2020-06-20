@@ -1,6 +1,3 @@
-### `error` *[error](#Error)*
-The error that is returned with this response. `null` is used when no error is present.
-
 # Error
 An error contains a few details about why a API call failed.
 
