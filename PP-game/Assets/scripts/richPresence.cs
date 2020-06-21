@@ -2,11 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Discord;
+using System;
 
 public class richPresence : MonoBehaviour
 {
 
     public Discord.Discord discord;
+
+    public Int64 secret = 0;
 
   //  public float clientID;
       
@@ -15,7 +18,7 @@ public class richPresence : MonoBehaviour
     void Start()
     {
 
-        discord = new Discord.Discord(724144886135390250, (System.UInt64)Discord.CreateFlags.Default);
+        discord = new Discord.Discord(secret, (System.UInt64)Discord.CreateFlags.Default);
         var activityManager = discord.GetActivityManager();
         var activity = new Discord.Activity
         {
