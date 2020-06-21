@@ -1,25 +1,55 @@
 # Alex and Tom's Programming Playground
 
-### What is this place?
-Funny you ask, because we don't know either.
+Basically, this is a place for Alex, Tom and friends to experiment in Unity and maybe, just maybe, make something amazing
 
-```c
-if(this turns into a cool project)
-{
-  it will be amazing;
-}
+## Getting Started
+
+At the moment this project is in its infancy, if you're interested in becoming a part of it, drop me a line on discord PhazorTV#0001
+
+### Prerequisites
+
+What you will need to play around
+
 ```
+Unity3D
+A IDE of your choice
+A web browser, duh
+A good reason to be apart of the project
+```
+
+
+## Built With
+
+* [Unity3D](https://unity.com/) - The game engine used
+* [Visual Studio 2019](https://visualstudio.microsoft.com/vs/) - A pretty good free IDE
+* [XAMPP](https://www.apachefriends.org/index.html) - Used to host apache and mysql server (because ISS is rubbish)
+
+
+
+
+
+## Authors
+
+* **Alex Kirwan** - *Project Founder*
+* **Tom Parker** - *Project Founder*
+* **Technokid** - *Contributor*
+
+
+## Acknowledgments
+
+* [PurpleBooth](https://gist.github.com/PurpleBooth) - For the readme template
+
+## Patreon
+
+* info about future Patreon stuff
+
+
+
+
+
+***
+Made in Australia with ❤
+
 ***
 
-For real though, currently (June 2020), We are working on an item system that will function similar to the one you see in Minecraft.
-
-All item data is stored online in a database which the "game" reads and writes to.
-
-If, for what ever reason, this project seems interesting to you, come join in the discussion...
-
- https://discord.gg/yQYbUQJ
-
-
-***
-
-follow twitter.com/winglesswhistle or you have smol pp
+follow WinglessWhistle on Twitter
