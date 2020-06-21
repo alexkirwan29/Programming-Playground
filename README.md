@@ -18,3 +18,8 @@ All item data is stored online in a database which the "game" reads and writes t
 If, for what ever reason, this project seems interesting to you, come join in the discussion...
 
  https://discord.gg/yQYbUQJ
+
+
+***
+
+follow twitter.com/winglesswhistle or you have smol pp
