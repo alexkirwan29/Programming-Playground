@@ -54,3 +54,11 @@ The following packages were added:
   com.unity.2d.tilemap@1.0.0
   com.unity.multiplayer-hlapi@1.0.4
   com.unity.xr.legacyinputhelpers@2.1.4
+
+=== Sun Jun 21 21:40:55 2020
+
+Packages were changed.
+Update Mode: updateDependencies
+
+The following packages were updated:
+  com.unity.multiplayer-hlapi from version 1.0.4 to 1.0.6
