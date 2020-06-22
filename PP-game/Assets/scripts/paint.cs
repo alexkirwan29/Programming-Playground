@@ -42,7 +42,7 @@ public class paint : MonoBehaviour {
 
     void Update() {
         //Display the FPS
-        print(1/Time.deltaTime);
+        //print(1/Time.deltaTime);
 
         //If we are clicking our mouse, check if we are hitting the canvas
         if (Input.GetMouseButton(0)) {
@@ -83,7 +83,8 @@ public class paint : MonoBehaviour {
         //Take the canvas plane texture and save it to a file
         Texture2D tex2D = (Texture2D)PaintingCanvas.material.mainTexture;
         System.IO.File.WriteAllBytes("Assets/graphics/Save Location.jpg", tex2D.EncodeToJPG());
-        print("Autosaved!");
+
+        //print("Autosaved!");
     }
 
     //Just multiple variations of how you can set a pixel. All are equally valid and each can be handy at certain times
@@ -106,6 +107,7 @@ public class paint : MonoBehaviour {
     }
 
     void EfficiencyTest() {
+        //This is just a test. It randomly picks a pixel position and colour, repeats 100,000 times, then sets the pixel list it generated
         List<PixelData> temp = new List<PixelData>();
         for (int i = 0; i < 100000; i++) {
             PixelData data = new PixelData {
@@ -120,7 +122,11 @@ public class paint : MonoBehaviour {
     }
 
     void PaintSquareAtPosition(int x_in, int y_in) {
+        //Start the PixelData list
         List<PixelData> temp = new List<PixelData>();
+
+        //Iterate between each pixel we want to set.
+        //This is the x and y positions of the brush +/- the brush size to generate a filled in square
         for (int x = x_in - brush.brushSize; x < x_in + brush.brushSize; x++) {
             for (int y = y_in - brush.brushSize; y < y_in + brush.brushSize; y++) {
                 //For each x and y position, add a pixelData object to the "temp" list
@@ -130,15 +136,21 @@ public class paint : MonoBehaviour {
                     color = brush.brushColour
                 };
 
+                //Add the correctly generated PixelData to the list
                 temp.Add(data);
             }
         }
 
+        //Now that we have generated the entire list of PixelData objects, simply apply them to the texture
         SetPixels(temp);
     }
 
     void PaintCircleAtPosition(int x, int y) {
+        //Start the PixelData list
         List<PixelData> temp = new List<PixelData>();
+
+        //To draw a circle, we have to first go around the entire circle (i) and find where the edge would be
+        //Then, we iterate through each position between the circle origin and the outer position (brushSize)
         for (float i = 0; i < 2 * Mathf.PI; i += 0.01f) {
             for (float length = 0; length < brush.brushSize; length += 1f) {
                 PixelData data = new PixelData {
@@ -146,19 +158,28 @@ public class paint : MonoBehaviour {
                     y = y + (int)(length * Mathf.Cos(i)),
                     color = brush.brushColour
                 };
+
+                //Add the correctly generated PixelData to the list
                 temp.Add(data);
             }
         }
 
+        //Now that we have generated the entire list of PixelData objects, simply apply them to the texture
         SetPixels(temp);
     }
 
     Vector2 Vector3ToPixel(Vector3 input) {
+        //Could not quite figure out the maths required for localised vector3 rotation
+        //The alternative solution was to use a pointer object (vector3Pointer) and parent it to the canvas (Check start method)
+        //Step 1, set the vector3Pointer position to the input Vector3
         vector3Pointer.transform.position = input;
 
+        //Step 2, now that the position is correct, we pump out the local position and can ignore the Vector3.y variable
         Vector3 localPos = vector3Pointer.transform.localPosition;
         Texture canvasTexture = PaintingCanvas.material.mainTexture;
 
+        //Now we simply have to take the Vector2 (Vector3 simply ignoring the y axis) and calculate where on the canvas we actually clicked
+        //Then, it's a simple matter using rounding and dividing by the canvas width to get the pixel that you actually clicked on
         float width = Mathf.Round(localPos.x * canvasTexture.width / 5 / 2 - 0.5f) + canvasTexture.width / 2;
         float height = Mathf.Round(localPos.z * canvasTexture.height / 5 / 2 - 0.5f) + canvasTexture.height / 2;
         
