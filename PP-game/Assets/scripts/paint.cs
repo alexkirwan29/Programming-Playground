@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿//base code by technokid
+
+using System.Collections.Generic;
 using UnityEngine;
 
 public struct Brush {
