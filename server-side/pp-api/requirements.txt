@@ -1,4 +1,6 @@
 flask-restful
+pymysql
+cryptography
 markdown
 pygments
 simplejson
