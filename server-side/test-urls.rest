@@ -4,4 +4,6 @@ http://localhost:5600/players/
 ###
 http://localhost:5600/items/
 ###
-http://localhost:5600/items/3
+http://localhost:5600/items/2
+###
+http://localhost:5600/inventories/1
