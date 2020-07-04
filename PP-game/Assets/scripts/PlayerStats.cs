@@ -1,10 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections.Generic;
-
-public struct StatBase {
-    string StatName;
-
-}
 
 public class PlayerStats : MonoBehaviour {
     //Health Stats
@@ -15,9 +9,12 @@ public class PlayerStats : MonoBehaviour {
     public float Stamina;                                               // This is the players current stamina
     public float MaxStamina;                                            // This is the players max stamina
 
-    public float DefaultRegeneration;                                   // The current regeneration speed
-    public List<StatBase> Regeneration_Effects = new List<StatBase>();
+    //Health Regen stats
+    public float DefaultRegenerationSpeed;                              // The current regeneration speed
+    public float ExtraRegenSpeed;                                       // Extra regen applied by another object
+    public float ExtraRegenExpiry;                                      // When the extra regen expires
 
+    //Drowning Stats
     public bool IsUnderwater = false;                                   // Is the player underwater?
     public float DrowningThreshold;                                     // How many seconds until the player starts to drown
     private float DrowningAirTimer;                                     // Internal timer variable for how long until you drown
@@ -25,10 +22,12 @@ public class PlayerStats : MonoBehaviour {
     public float BreathInSpeed;                                         // How fast the player breaths in after drowning
     public float DamageFromDrowning;                                    // How much damage per frame the player takes while drowning
 
+    //Poison Stats
     public bool IsPoisoned = false;                                     // Is the player poisoned?
     private float PoisonTimer;                                          // Internal timer variable for how long until the effect wears off
     public float DamageFromPoison;                                      // How much damage per frame the player takes while poisoned
 
+    //Fire Stats
     public bool IsOnFire = false;                                       // Is the player on fire?
     private float FireTimer;                                            // Internal timer variable for how long until the effect wears off
     public float DamageFromFire;                                        // How much damage per frame the player takes while on fire
@@ -46,34 +45,37 @@ public class PlayerStats : MonoBehaviour {
             DrowningAirTimer = Mathf.Clamp(DrowningAirTimer - Time.deltaTime * BreathInSpeed, 0, DrowningThreshold);
         
         if (IsPoisoned) {
-            Health -= DamageFromPoison;
+            Health -= DamageFromPoison * Time.deltaTime;
             PoisonTimer = Mathf.Clamp(PoisonTimer - Time.deltaTime,0,Mathf.Infinity);
             if (PoisonTimer == 0)
                 IsPoisoned = false;
         }
         
         if (IsOnFire) {
-            Health -= DamageFromFire;
+            Health -= DamageFromFire * Time.deltaTime;
             FireTimer = Mathf.Clamp(FireTimer - Time.deltaTime, 0, Mathf.Infinity);
             if (FireTimer == 0)
                 IsOnFire = false;
         }
 
-        Health = Mathf.Clamp(Health + DefaultRegeneration, 0, MaxHealth);
+        if (ExtraRegenExpiry < 0) {
+            Health = Mathf.Clamp(Health + (DefaultRegenerationSpeed + ExtraRegenSpeed) * Time.deltaTime, 0, MaxHealth);
+            if (ExtraRegenExpiry == 0)
+                ExtraRegenSpeed = 0;
+        }
     }
 
-    void SetUnderwater(bool underwater) {
-        IsUnderwater = underwater;
-        if (!IsUnderwater) { DrowningAirTimer = 0; return; }
-    }
+    public void SetUnderwater(bool underwater) { IsUnderwater = underwater; }
 
     void SetOnFire(bool fireState, float expiryTimer) {
         IsOnFire = fireState;
-        if (!IsOnFire) { FireTimer = expiryTimer; return; }
+        if (IsOnFire)
+            FireTimer = expiryTimer;
     }
 
-    void SetPoisoned(bool poisonState, float expiryTimer) {
+    public void SetPoisoned(bool poisonState, float expiryTimer) {
         IsPoisoned = poisonState;
-        if (!IsPoisoned) { PoisonTimer = expiryTimer; return; }
+        if (IsPoisoned)
+            PoisonTimer = expiryTimer;
     }
 }
