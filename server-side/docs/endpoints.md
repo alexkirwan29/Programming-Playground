@@ -1,6 +1,3 @@
-# Requirement For Authentication
-
-
 # <a name="players"></a> `GET` /v1/players/
 Gets All Players.
 

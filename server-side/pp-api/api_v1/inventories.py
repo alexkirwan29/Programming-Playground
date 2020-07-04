@@ -15,9 +15,10 @@ class Inventory(Resource):
       # Return an error 404 if there is no inventory.
       if invMetaData is None:
         return {"error":{
-          "message":"Inventory ID of {} does not exist".format(inv_id),
+          "message":"The inventory ID of {} does not exist".format(inv_id),
           "code": 0xF404
           }},404
+
 
       # Get the items in the inventory. Rename item_id as i and quantity as q
       query = "SELECT item_id as i, quantity as q FROM inventory_map WHERE inv_id = %s"
