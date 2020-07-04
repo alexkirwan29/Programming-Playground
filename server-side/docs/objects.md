@@ -4,8 +4,11 @@ An error contains a few details about why a API call failed.
 ## Examples
 ```json
 {
-	"code": 22,
-	"message": "the authentication token was invalid",
+  "error":
+  {
+	  "code": 22,
+    "message": "the authentication token was invalid",
+  }
 }
 ```
 

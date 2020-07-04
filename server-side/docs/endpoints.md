@@ -113,10 +113,22 @@ Gets the contents of an inventory.
 ```json
 GET /v1/inventories/8
 {
-	"inv_id":8,
-	"name": "Player Inventory",
-	"items": [2,5,9,4,33,281,12,3],
-	"quantities": [1,4,22935,125,103,99,1,1]
+  "name": "Player Inventory",
+  "max_slots": 10,
+  "slots": [
+    {
+      "i": 1,
+      "q": 4
+    },
+    {
+      "i": 3,
+      "q": 2
+    },
+    {
+      "i": 6,
+      "q": 2
+    }
+  ]
 }
 ```
 
@@ -133,16 +145,28 @@ Updates the items of an [Inventory Object](objects.md#Inventory).
 ## JSON Body Content
 
 - `name` the new name of the inventory. *leave out for no change*
-- `items` the array of item_id's that this inventory stores.
-- `quantities` the array of the quantity of each item in the items array.
+- `slots` the array of items in this inventory.
 
 
 ```json
 PUT /v1/inventories/8
 {
-	"name": "My Cool Inventory",
-	"items": [2, 2, 2, 2, 2, 2, 2, 2, 2],
-	"quantities": [1, 1, 1, 1, 1, 1, 1, 1, 1]
+  "name": "Player Inventory",
+  "max_slots": 10,
+  "slots": [
+    {
+      "i": 1,
+      "q": 4
+    },
+    {
+      "i": 3,
+      "q": 2
+    },
+    {
+      "i": 6,
+      "q": 2
+    }
+  ]
 }
 ```
 
