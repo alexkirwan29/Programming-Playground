@@ -9,6 +9,7 @@ using UnityEngine;
 //    }
 //}
 
+//Inherit this class. Only thing left is to call "Update" on inheriting script
 public class PlayerStats : MonoBehaviour {
     //Health Stats
     public float Health = 100;                                          // This is the players current health
@@ -41,7 +42,12 @@ public class PlayerStats : MonoBehaviour {
     public float FireTimer = 0;                                        // Internal timer variable for how long until the effect wears off
     public float DamageFromFire = 15;                                   // How much damage per frame the player takes while on fire
 
+    //override this to have a void Update function in your class when inheriting this function
+    public void InheritedUpdate() { }
+
     void Update() {
+        InheritedUpdate();
+
         //Drowning Logic
         if (DrowningAirTimer == DrowningThreshold)
             Health -= DamageFromDrowning;           //If the player is at the drowning threshold, start taking damage
