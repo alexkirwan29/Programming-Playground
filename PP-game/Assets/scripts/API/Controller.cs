@@ -12,65 +12,6 @@ namespace PP.API
   {
     public string url = "http://api.pp.nrms.xyz";
 
-    public void Start()
-    {
-      var players = new Endpoints.Players(this);
-      var items = new Endpoints.Items(this);
-      var inventories = new Endpoints.Inventory(this);
-
-      // Print the size of the array of players downloaded from the API.
-      StartCoroutine(players.GetAllPlayers
-      (
-        (Objects.Player[] allPlayers) =>
-        {
-          Debug.Log(allPlayers.Length);
-        }
-      ));
-
-      // Print the name of the player with ID of 1.
-      StartCoroutine(players.GetPlayer
-      (
-        1,
-        (Objects.Player player ) =>
-        {
-          Debug.Log(player.UserName);
-        }
-      ));
-
-      // Print the name and description of an item with the ID of 5
-      StartCoroutine(items.GetItem
-      (
-        5,
-        (Objects.Item item ) =>
-        {
-          Debug.Log(item.Name);
-          Debug.Log(item.Description);
-        }
-      ));
-
-      // Print the name and description of an item with the ID of 5
-      StartCoroutine(items.GetAllItems
-      (
-        (Objects.Item[] allItems ) =>
-        {
-          Debug.Log(allItems.Length);
-        }
-      ));
-
-    
-      // Print the name of an inventory along with the amount of inventory slots taken up.
-      StartCoroutine(inventories.GetInventory
-      (
-        1,
-        (Objects.Inventory inventory ) =>
-        {
-          Debug.Log(inventory.Name);
-          Debug.Log(inventory.Slots.Length);
-        }
-      ));
-    }
-
-    
     /// <summary>
     /// Makes a request to the Database invoking OnSuccess OR OnError.
     /// </summary>
@@ -95,13 +36,8 @@ namespace PP.API
       // Set the requested content type. (API dose not care, will always return json)
       request.SetRequestHeader("Content-Type", "application/json");
 
-
-
       // Wait until the request has been processed by the API.
       yield return request.SendWebRequest();
-
-
-
 
       // Check to see if there is an error.
       if(request.isNetworkError || request.isHttpError)
@@ -117,8 +53,6 @@ namespace PP.API
           OnError.Invoke(error);
       }
 
-
-
       else
       {
         // Looks like everything worked. Wooh!
@@ -131,3 +65,74 @@ namespace PP.API
     }
   }
 }
+
+
+
+// The following are examples on how to use the API.
+
+// GET PLAYERS.
+
+//   var players = new Endpoints.Players(this);
+
+//   // Print the size of the array of players downloaded from the API.
+//   StartCoroutine(players.GetAllPlayers
+//   (
+//     (Objects.Player[] allPlayers) =>
+//     {
+//       Debug.Log(allPlayers.Length);
+//     }
+//   ));
+
+//   // Print the name of the player with ID of 1.
+//   StartCoroutine(players.GetPlayer
+//   (
+//     1,
+//     (Objects.Player player ) =>
+//     {
+//       Debug.Log(player.UserName);
+//     }
+//   ));
+
+
+
+// GET ITEMS
+
+//   var items = new Endpoints.Items(this);
+
+//   //Print the name and description of an item with the ID of 5
+//   StartCoroutine(items.GetItem
+//   (
+//     5,
+//     (Objects.Item item ) =>
+//     {
+//       Debug.Log(item.Name);
+//       Debug.Log(item.Description);
+//     }
+//   ));
+
+//   // Print the name and description of an item with the ID of 5
+//   StartCoroutine(items.GetAllItems
+//   (
+//     (Objects.Item[] allItems ) =>
+//     {
+//       Debug.Log(allItems.Length);
+//     }
+//   ));
+
+
+
+// GET INVENTORIES
+
+//   var inventories = new Endpoints.Inventory(this);
+
+//   // Print the name of an inventory along with the amount of inventory slots taken up.
+//   StartCoroutine(inventories.GetInventory
+//   (
+//     1,
+//     (Objects.Inventory inventory ) =>
+//     {
+//       Debug.Log(inventory.Name);
+//       Debug.Log(inventory.Slots.Length);
+//     }
+//   ));
+// }
