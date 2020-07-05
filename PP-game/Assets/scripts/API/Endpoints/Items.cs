@@ -7,7 +7,7 @@ namespace PP.API.Endpoints
 {
   public class Items : Endpoint
   {
-    public Items(Controller controller) : base(controller)
+    public Items(APIManager controller) : base(controller)
     {
 
     }

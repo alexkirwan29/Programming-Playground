@@ -9,7 +9,7 @@ namespace PP.API.Endpoints
 {
   public class Players : Endpoint
   {
-    public Players(Controller controller) : base(controller)
+    public Players(APIManager controller) : base(controller)
     {
 
     }

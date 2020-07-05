@@ -1,6 +1,4 @@
-using PP.API;
-
-namespace PP.API.Objects
+namespace PP.API
 {
   public class APIObject
   {

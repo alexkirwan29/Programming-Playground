@@ -8,7 +8,7 @@ namespace PP.API.Endpoints
 {
   public class Inventory : Endpoint
   {
-    public Inventory(Controller controller) : base(controller)
+    public Inventory(APIManager controller) : base(controller)
     {
       
     }
