@@ -4,11 +4,33 @@ using System;
 
 [CustomEditor(typeof(TerrainGenerator))]
 public class TerrainGeneratorCustomInspector : Editor {
+    bool isIsland = false;
+    bool prevIsIsland = false;
+
+    bool isLand = true;
+    bool prevIsLand = true;
+
     public override void OnInspectorGUI() {
+        isIsland = EditorGUILayout.Toggle("Generate island", isIsland);
+        isLand = EditorGUILayout.Toggle("Generate standard land", isLand);
+
+        if (isLand != prevIsLand) {
+            isIsland = false;
+            prevIsLand = isLand;
+        }
+
+        if (isIsland != prevIsIsland) {
+            isLand = false;
+            prevIsIsland = isIsland;
+        }
+
+        DrawDefaultInspector();
+
         if (GUILayout.Button("Generate New Terrain")) {
             TerrainGenerator tg = new TerrainGenerator();
             tg.GenerateNewTerrain(
-                150, 0.15f,
+                isIsland,
+                150, .15f,
                 50, 0.07f,
                 25, 0.03f
             );
@@ -17,7 +39,7 @@ public class TerrainGeneratorCustomInspector : Editor {
 }
 
 public class TerrainGenerator : MonoBehaviour {
-    public void GenerateNewTerrain(float scale_1, float height_1, float scale_2, float height_2, float scale_3, float height_3) {
+    public void GenerateNewTerrain(bool island, float scale_1, float height_1, float scale_2, float height_2, float scale_3, float height_3) {
         //We want to actually generate the terrain now
         Terrain terrain = Selection.activeGameObject.GetComponent<Terrain>();
         TerrainData terrainData = terrain.terrainData;
@@ -30,11 +52,24 @@ public class TerrainGenerator : MonoBehaviour {
 
         for (int y = 0; y < yRes; y++) {
             for (int x = 0; x < xRes; x++) {
+                //Height map 1
                 heightmap[x, y] = Mathf.PerlinNoise(x / scale_1 + x_offset, y / scale_1 + y_offset) * height_1;
+
+                //Height map 2
                 heightmap[x, y] += Mathf.PerlinNoise(x / scale_2 + y_offset, y / scale_2 + x_offset) * height_2;
+
+                //Height map 3
                 heightmap[x, y] -= Mathf.PerlinNoise(x / scale_3 + x_offset, y / scale_3 + y_offset) * height_3;
-                
-                //heightmap[x, y] = (-Mathf.Sin(Mathf.Pow((float)Convert.ToDouble(x + 500)/300, 2)) + Mathf.Sin(Mathf.Pow((float)Convert.ToDouble(y + 500) / 300, 2)) + 5)*0.1f;
+
+                //Island calculations for height map correction
+                if (island) {
+                    float x2 = (float)Convert.ToDouble(x) - 250;
+                    float y2 = (float)Convert.ToDouble(y) - 250;
+                    float distFromCenter = Mathf.Sqrt(Mathf.Pow(x2, 2) + Mathf.Pow(y2, 2));
+
+
+                    heightmap[x, y] *= cosNotRepeatingCorrected(distFromCenter / 90);
+                }
             }
         }
 
@@ -61,5 +96,9 @@ public class TerrainGenerator : MonoBehaviour {
         go.position = new Vector3(500, averageHeight * 0.3f, 500);
         
         terrainData.SetHeights(0, 0, heightmap);
+    }
+
+    public float cosNotRepeatingCorrected(float x) {
+        return Mathf.Cos(Mathf.Clamp(x,0,Mathf.PI))/2 + 0.5f;
     }
 }
