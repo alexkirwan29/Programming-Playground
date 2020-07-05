@@ -43,10 +43,14 @@ public class PlayerStats : MonoBehaviour {
     public float DamageFromFire = 15;                                   // How much damage per frame the player takes while on fire
 
     //override this to have a void Update function in your class when inheriting this function
-    public void InheritedUpdate() { }
+    public virtual void InheritedAwake() { }
+    public virtual void InheritedStart() { }
+    public virtual void InheritedUpdate(float deltaTime) { }
 
+    void Awake() { InheritedAwake(); }
+    void Start() { InheritedStart(); }
     void Update() {
-        InheritedUpdate();
+        InheritedUpdate(Time.deltaTime);
 
         //Drowning Logic
         if (DrowningAirTimer == DrowningThreshold)
