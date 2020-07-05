@@ -1,12 +1,5 @@
 
 PP-game/ProjectSettings/ProjectVersion.txt
-PP-game/ProjectSettings/ProjectVersion.txt
-PP-game/ProjectSettings/ProjectVersion.txt
 PP-game/Packages/packages-lock.json
-PP-game/Packages/manifest.json
-PP-game/Logs/Packages-Update.log
-PP-game/.vs/PP-game/v15/Server/sqlite3/storage.ide-wal
-PP-game/.vs/PP-game/v15/Server/sqlite3/storage.ide-shm
-PP-game/Logs/Packages-Update.log
-PP-game/Packages/manifest.json
-PP-game/ProjectSettings/ProjectVersion.txt
+PP-game/Logs/
+PP-game/.vs/

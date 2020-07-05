@@ -4,9 +4,6 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.Events;
 
-using PP.API.Endpoints;
-using PP.API.Objects;
-
 using Newtonsoft.Json;
 
 namespace PP.API
@@ -14,43 +11,6 @@ namespace PP.API
   public class Controller : MonoBehaviour
   {
     public string url = "http://api.pp.nrms.xyz";
-
-    public IEnumerator MakeRequest<T> (string method, string url, Endpoint sender, UnityAction<T> OnSuccess, UnityAction<Objects.Error> OnError)
-    {
-      var request = new UnityWebRequest();
-      var dlh = new DownloadHandlerBuffer();
-      // Setup the request.
-      request.url = this.url + url;
-      request.method = method;
-      
-      request.timeout = 20;
-      request.redirectLimit = 5;
-
-      request.useHttpContinue = false;
-      request.downloadHandler = dlh;
-      request.SetRequestHeader("Content-Type", "application/json");
-
-      // Send the request.
-      yield return request.SendWebRequest();
-
-      // If there was an error, log it and invoke OnError if it exits.
-      var error = new Objects.Error(request.url, request.responseCode, request.error);
-      if(request.isNetworkError || request.isHttpError)
-      {
-        LogError(sender, error.ToString());
-        if(OnError != null)
-          OnError.Invoke(error);
-      }
-      else
-      {
-        T obj = JsonConvert.DeserializeObject<T>(request.downloadHandler.text);
-        OnSuccess.Invoke(obj);
-      }
-    }
-    public void LogError(Endpoint e, string text)
-    {
-      Debug.LogError($"Network Error [{e.GetType()}]: {text}");
-    }
 
     public void Start()
     {
@@ -108,6 +68,66 @@ namespace PP.API
           Debug.Log(inventory.Slots.Length);
         }
       ));
+    }
+
+    
+    /// <summary>
+    /// Makes a request to the Database invoking OnSuccess OR OnError.
+    /// </summary>
+    /// <param name="method">The HTTP method to use (GET, POST, PUT, DELETE, UPDATE).</param>
+    /// <param name="url">The URL prefix to use.</param>
+    /// <param name="sender">The object making the request.</param>
+    /// <param name="OnSuccess">The Action that's called when the data was successfully obtained</param>
+    /// <param name="OnError">The Action that's called when the api or network returned an error.</param>
+    /// <typeparam name="T">The type of object to get from the database.</typeparam>
+    /// <returns></returns>
+    public IEnumerator MakeRequest<T> (string method, string url, Endpoint sender, UnityAction<T> OnSuccess, UnityAction<Objects.Error> OnError)
+    {
+      // Make the request object.
+      var request = new UnityWebRequest();
+
+      // Set the URL, Method, timeout and downloadHandler.
+      request.url = this.url + url;
+      request.method = method;
+      request.timeout = 20;
+      request.downloadHandler = new DownloadHandlerBuffer();
+
+      // Set the requested content type. (API dose not care, will always return json)
+      request.SetRequestHeader("Content-Type", "application/json");
+
+
+
+      // Wait until the request has been processed by the API.
+      yield return request.SendWebRequest();
+
+
+
+
+      // Check to see if there is an error.
+      if(request.isNetworkError || request.isHttpError)
+      {
+        // Create the error object.
+        var error = new Objects.Error(request.url, request.responseCode, request.error);
+
+        // Log the error to the console.
+        Debug.LogError($"API Error [{sender.GetType()}]: {error}");
+
+        // Invoke OnError if it's not null.
+        if(OnError != null)
+          OnError.Invoke(error);
+      }
+
+
+
+      else
+      {
+        // Looks like everything worked. Wooh!
+        // Deserialize the JSON data into whatever the generic type is.
+        T obj = JsonConvert.DeserializeObject<T>(request.downloadHandler.text);
+
+        // Invoke the OnSuccess action.
+        OnSuccess.Invoke(obj);
+      }
     }
   }
 }

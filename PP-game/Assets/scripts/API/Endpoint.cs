@@ -1,6 +1,4 @@
-  using PP.API;
-  
-namespace PP.API.Endpoints
+namespace PP.API
 {
   public class Endpoint
   {
