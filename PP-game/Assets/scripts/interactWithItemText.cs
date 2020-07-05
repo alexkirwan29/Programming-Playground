@@ -23,13 +23,7 @@ public class interactWithItemText : MonoBehaviour
     void Update()
     {
 
-        RaycastHit hit;
-
-        if (Physics.Raycast(transform.position, transform.forward, out hit, maxDistance) &&
-        hit.collider.gameObject.CompareTag("interactable"))
-        {
-            interactLabel.text = "item hit";
-        }
+    
 
 
     }
