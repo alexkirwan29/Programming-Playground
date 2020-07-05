@@ -1,13 +1,4 @@
-﻿using UnityEditor;
-using UnityEngine;
-
-//This piece of code is literally just to stop all the public variables in PlayerStats from showing in the inspector
-//[CustomEditor(typeof(PlayerStats))]
-//public class PlayerStatsEditor : Editor {
-//    public override void OnInspectorGUI() {
-//        base.DrawDefaultInspector();
-//    }
-//}
+﻿using UnityEngine;
 
 //Inherit this class. Only thing left is to call "Update" on inheriting script
 public class PlayerStats : MonoBehaviour {
