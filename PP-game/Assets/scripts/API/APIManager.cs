@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 
 namespace PP.API
 {
-  public class Controller : MonoBehaviour
+  public class APIManager : MonoBehaviour
   {
     public string url = "http://api.pp.nrms.xyz";
 
@@ -21,7 +21,6 @@ namespace PP.API
     /// <param name="OnSuccess">The Action that's called when the data was successfully obtained</param>
     /// <param name="OnError">The Action that's called when the api or network returned an error.</param>
     /// <typeparam name="T">The type of object to get from the database.</typeparam>
-    /// <returns></returns>
     public IEnumerator MakeRequest<T> (string method, string url, Endpoint sender, UnityAction<T> OnSuccess, UnityAction<Objects.Error> OnError)
     {
       // Make the request object.
@@ -52,7 +51,7 @@ namespace PP.API
         if(OnError != null)
           OnError.Invoke(error);
       }
-
+      //TODO: Check to see if the API has sent an error. Parse that and log it too.
       else
       {
         // Looks like everything worked. Wooh!

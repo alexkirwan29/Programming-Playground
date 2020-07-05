@@ -2,9 +2,9 @@ namespace PP.API
 {
   public class Endpoint
   {
-    internal Controller controller;
+    internal APIManager controller;
 
-    public Endpoint(Controller controller)
+    public Endpoint(APIManager controller)
     {
       this.controller = controller;
     }
