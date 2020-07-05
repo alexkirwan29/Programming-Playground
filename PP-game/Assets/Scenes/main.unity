@@ -619,7 +619,6 @@ GameObject:
   - component: {fileID: 391660093}
   - component: {fileID: 391660092}
   - component: {fileID: 391660091}
-  - component: {fileID: 391660097}
   - component: {fileID: 391660098}
   - component: {fileID: 391660099}
   m_Layer: 0
@@ -734,37 +733,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 34.283, z: 0}
---- !u!114 &391660097
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 391660090}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3fd5c1a85e531ce41895db41866995a0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Health: 100
-  MaxHealth: 100
-  Stamina: 100
-  MaxStamina: 100
-  DefaultRegenerationSpeed: 2
-  ExtraRegenSpeed: 0
-  ExtraRegenExpiry: 0
-  IsUnderwater: 0
-  DrowningThreshold: 10
-  DrowningAirTimer: 0
-  DrowningSpeed: 1
-  BreathInSpeed: 0.5
-  DamageFromDrowning: 10
-  IsPoisoned: 0
-  PoisonTimer: 0
-  DamageFromPoison: 5
-  IsOnFire: 0
-  FireTimer: 0
-  DamageFromFire: 15
 --- !u!82 &391660098
 AudioSource:
   m_ObjectHideFlags: 0
