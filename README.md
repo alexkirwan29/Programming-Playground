@@ -33,6 +33,7 @@ A good reason to be apart of the project
 * **Alex Kirwan** - *Project Founder*
 * **Tom Parker** - *Project Founder*
 * **Technokid** - *Contributor*
+* **BenKWN** - *Graphics and stuff*
 
 
 ## Acknowledgments
