@@ -53,7 +53,7 @@ public class TerrainGenerator : MonoBehaviour {
                 float distFromCenter = Mathf.Sqrt(Mathf.Pow(x2, 2) + Mathf.Pow(y2, 2));
 
                 switch (landType) {
-                    case 2:
+                    case 1:
                         heightmap[x, y] *= cosNotRepeatingCorrected(distFromCenter / 90);
                         break;
                 }
