@@ -4,32 +4,18 @@ using System;
 
 [CustomEditor(typeof(TerrainGenerator))]
 public class TerrainGeneratorCustomInspector : Editor {
-    bool isIsland = false;
-    bool prevIsIsland = false;
-
-    bool isLand = true;
-    bool prevIsLand = true;
+    int selected = 0;
 
     public override void OnInspectorGUI() {
-        isIsland = EditorGUILayout.Toggle("Generate island", isIsland);
-        isLand = EditorGUILayout.Toggle("Generate standard land", isLand);
-
-        if (isLand != prevIsLand) {
-            isIsland = false;
-            prevIsLand = isLand;
-        }
-
-        if (isIsland != prevIsIsland) {
-            isLand = false;
-            prevIsIsland = isIsland;
-        }
+        string[] options = new string[] { "Standard Land", "Standard Island" };
+        selected = EditorGUILayout.Popup("Label", selected, options);
 
         DrawDefaultInspector();
 
         if (GUILayout.Button("Generate New Terrain")) {
             TerrainGenerator tg = new TerrainGenerator();
             tg.GenerateNewTerrain(
-                isIsland,
+                selected,
                 150, .15f,
                 50, 0.07f,
                 25, 0.03f
@@ -39,7 +25,7 @@ public class TerrainGeneratorCustomInspector : Editor {
 }
 
 public class TerrainGenerator : MonoBehaviour {
-    public void GenerateNewTerrain(bool island, float scale_1, float height_1, float scale_2, float height_2, float scale_3, float height_3) {
+    public void GenerateNewTerrain(int landType, float scale_1, float height_1, float scale_2, float height_2, float scale_3, float height_3) {
         //We want to actually generate the terrain now
         Terrain terrain = Selection.activeGameObject.GetComponent<Terrain>();
         TerrainData terrainData = terrain.terrainData;
@@ -62,13 +48,14 @@ public class TerrainGenerator : MonoBehaviour {
                 heightmap[x, y] -= Mathf.PerlinNoise(x / scale_3 + x_offset, y / scale_3 + y_offset) * height_3;
 
                 //Island calculations for height map correction
-                if (island) {
-                    float x2 = (float)Convert.ToDouble(x) - 250;
-                    float y2 = (float)Convert.ToDouble(y) - 250;
-                    float distFromCenter = Mathf.Sqrt(Mathf.Pow(x2, 2) + Mathf.Pow(y2, 2));
+                float x2 = (float)Convert.ToDouble(x) - 250;
+                float y2 = (float)Convert.ToDouble(y) - 250;
+                float distFromCenter = Mathf.Sqrt(Mathf.Pow(x2, 2) + Mathf.Pow(y2, 2));
 
-
-                    heightmap[x, y] *= cosNotRepeatingCorrected(distFromCenter / 90);
+                switch (landType) {
+                    case 2:
+                        heightmap[x, y] *= cosNotRepeatingCorrected(distFromCenter / 90);
+                        break;
                 }
             }
         }
@@ -100,5 +87,9 @@ public class TerrainGenerator : MonoBehaviour {
 
     public float cosNotRepeatingCorrected(float x) {
         return Mathf.Cos(Mathf.Clamp(x,0,Mathf.PI))/2 + 0.5f;
+    }
+
+    public float sinNotRepeatingCorrected(float x) {
+        return Mathf.Sin(Mathf.Clamp(x, 0, Mathf.PI)) / 2 + 0.5f;
     }
 }
