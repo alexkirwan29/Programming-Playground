@@ -36,6 +36,9 @@ public class TerrainGenerator : MonoBehaviour {
         float x_offset = UnityEngine.Random.Range(0,100);
         float y_offset = UnityEngine.Random.Range(0,100);
 
+        float lowestPoint = Mathf.Infinity;
+        float highestPoint = 0;
+
         for (int y = 0; y < yRes; y++) {
             for (int x = 0; x < xRes; x++) {
                 //Height map 1
@@ -57,18 +60,13 @@ public class TerrainGenerator : MonoBehaviour {
                         heightmap[x, y] *= cosNotRepeatingCorrected(distFromCenter / 90);
                         break;
                 }
+
+                if (heightmap[x, y] < lowestPoint)
+                    lowestPoint = heightmap[x, y];
+                if (heightmap[x, y] > highestPoint)
+                    highestPoint = heightmap[x, y];
             }
         }
-
-        float averageHeight = 0;
-        for (int x = 0; x < xRes - 1; x++) {
-            for (int y = 0; y < yRes - 1; y++) {
-                averageHeight += heightmap[x, y];
-            }
-        }
-
-        averageHeight /= Mathf.Sqrt(heightmap.Length);
-        averageHeight *= 2;
 
         Transform go = null;
         try { go = Selection.activeGameObject.transform.Find("Water Level"); } catch { }
@@ -79,17 +77,31 @@ public class TerrainGenerator : MonoBehaviour {
             go.name = "Water Level";
             go.SetParent(Selection.activeGameObject.transform);
         }
-
-        go.position = new Vector3(500, averageHeight * 0.3f, 500);
         
         terrainData.SetHeights(0, 0, heightmap);
+
+        print("Max: " + highestPoint + "      Min: " + lowestPoint);
+        float waterHeight = getPercentageOfHeight(highestPoint, lowestPoint, 0.25f);
+        float coastlineHeight = getPercentageOfHeight(highestPoint, lowestPoint, 0.2f);
+        float grassHeight = getPercentageOfHeight(highestPoint, lowestPoint, 0.3f);
+        float mountainsHeight = getPercentageOfHeight(highestPoint, lowestPoint, 0.5f);
+        float mountainTopHeight = getPercentageOfHeight(highestPoint, lowestPoint, 0.85f);
+
+        for (int y = 0; y < yRes; y++) {
+            for (int x = 0; x < xRes; x++) {
+                //We want to edit the texture based on height
+
+            }
+        }
+
+        go.position = new Vector3(500, waterHeight, 500);
     }
 
     public float cosNotRepeatingCorrected(float x) {
         return Mathf.Cos(Mathf.Clamp(x,0,Mathf.PI))/2 + 0.5f;
     }
 
-    public float sinNotRepeatingCorrected(float x) {
-        return Mathf.Sin(Mathf.Clamp(x, 0, Mathf.PI)) / 2 + 0.5f;
+    public float getPercentageOfHeight(float max, float min, float percentage){
+        return (max - min) * percentage + min;
     }
 }
