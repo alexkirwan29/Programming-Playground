@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 
 //Inherit this class. Only thing left is to call "Update" on inheriting script
-public class PlayerStats : MonoBehaviour {
+public class PlayerStats_1 : MonoBehaviour {
     //Health Stats
     public float Health = 100;                                          // This is the players current health
     public float MaxHealth = 100;                                       // This is the players max health
