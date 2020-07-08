@@ -2,61 +2,70 @@ using UnityEditor;
 using UnityEngine;
 using System.IO;
 using System.Diagnostics;
+using System;
 
 public class ServerBuild
 {
-
-  static Process runningProcess;
-
-  [MenuItem("Build/Build And Run Server")]
-  public static void BuildAndRun()
-  {
-    // Stop the old process.
-    if(runningProcess != null)
-      runningProcess.Close();
-    
-    // Build the server.
-    var buildExecutable = Build();
-    
-    // Start a new process.
-    runningProcess.StartInfo.FileName = buildExecutable;
-    runningProcess.Start();
-  }
-
   [MenuItem("Build/Build Server")]
   public static string Build()
   {
-    var options = new BuildPlayerOptions();
+    // The defines for this build.
+    string defines = "PP_SERVER";
 
-    // The list of scenes to use in the server build.
-    options.scenes = new[]
+    // Save the old defines before we set the new defines.
+    var oldDefines = PlayerSettings.GetScriptingDefineSymbolsForGroup(BuildTargetGroup.Standalone);
+    PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Standalone, defines);
+
+    // Build the project as a PP_SERVER.
+    string filename;
+    try
     {
-      "Assets/Scenes/game-world.unity",
-    };
+      UnityEngine.Debug.Log("Building Server");
+      filename = buildApplication();
+    }
+    catch(System.Exception e)
+    {
+      throw e;
+    }
 
-    // For windows put the build in builds\server.exe
+    // Set the defines back to how they where before we started poking around.
+    PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Standalone, oldDefines);
+
+    return filename;
+  }
+
+  private static string buildApplication()
+  {
+          var options = new BuildPlayerOptions();
+      // The list of scenes to use in the server build.
+      options.scenes = new[]
+      {
+        "Assets/Scenes/game-world.unity",
+      };
+
+      // For windows put the build in builds\server.exe
 #if UNITY_STANDALONE_WIN
-    options.locationPathName = "builds\\server.exe";
-    options.target = BuildTarget.StandaloneWindows64
+      options.locationPathName = "builds\\server.exe";
+      options.target = BuildTarget.StandaloneWindows64
 
-    // For linux put the build in builds/server
+      // For linux put the build in builds/server
 #elif UNITY_STANDALONE_LINUX
-    options.locationPathName = "builds/server";
-    options.target = BuildTarget.StandaloneLinux64;
+      options.locationPathName = "builds/server";
+      options.target = BuildTarget.StandaloneLinux64;
 
-    // For everything else... throw a hissyfit.
+      // For everything else... throw a hissyfit.
 #else
-    throw new NotImplementedException("This Platform is not Implemented");
+      throw new NotImplementedException("This Platform is not Implemented");
 
 #endif
 
-    // Set the build target and extra options.
-    options.targetGroup = BuildTargetGroup.Standalone;
-    options.options = BuildOptions.EnableHeadlessMode | BuildOptions.AllowDebugging;
+      // Set the build target and extra options.
+      options.targetGroup = BuildTargetGroup.Standalone;
+      options.options = BuildOptions.EnableHeadlessMode | BuildOptions.AllowDebugging;
 
-    // Actually build the server.
-    BuildPipeline.BuildPlayer(options);
+      // Actually build the server.
+      BuildPipeline.BuildPlayer(options);
 
-    return options.locationPathName;
+      return options.locationPathName;
   }
 }
