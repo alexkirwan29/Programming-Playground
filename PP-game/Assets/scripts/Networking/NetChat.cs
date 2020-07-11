@@ -1,7 +1,10 @@
 // NetChat created by 45Ninjas aka Tom
 // Documentation at scripts/Networking/Doc/chat.md
 
+using UnityEngine;
 using System;
+using LiteNetLib;
+using LiteNetLib.Utils;
 
 namespace PP.Networking
 {
@@ -9,12 +12,17 @@ namespace PP.Networking
   {
     // Allow other code to know if the controller is running.
     public static bool IsReady
-    { get {
-      return controller != null && controller.IsRunning;
-    }}
+    {
+      get
+      {
+        return controller.IsRunning;
+      }
+    }
+
+    private static bool isServer;
 
     // The action that is called when a chat message has been received.
-    public static Action<Packets.ChatMessage> OnMessageReceived;
+    public static Action<string> OnMessageReceived;
 
     // The controller that this Class interacts with.
     private static GameNetworker controller;
@@ -22,25 +30,19 @@ namespace PP.Networking
     // Initialises and subscribes to events.
     public static void Initialise(GameNetworker controller)
     {
-      OnMessageReceived += debugChatMessage;
       // Subscribe to the ChatMessage packet.
-      controller.packetProcessor.SubscribeReusable<Packets.ChatMessage>(OnMessageReceived);
+      controller.packetProcessor.SubscribeReusable<Packets.ChatMessage>(messageReceived);
+
 
       // Get a reference to the controller.
       NetChat.controller = controller;
+
+      isServer = controller.GetType() == typeof(Server.GameServer);
     }
 
-    // Creates a debug message when a chat message has been received.
-    private static void debugChatMessage(Packets.ChatMessage messagePacket)
-    {
-      UnityEngine.Debug.Log("Chat Message: " + messagePacket.message);
-    }
-
-    // Un subscribes from events.
     public static void DeInitialise()
     {
       NetChat.controller.packetProcessor.RemoveSubscription<Packets.ChatMessage>();
-      NetChat.controller = null;
     }
 
     /// <summary>
@@ -51,14 +53,32 @@ namespace PP.Networking
     {
       // Only send the chat message packet if the controller is ready.
       if(IsReady)
-        controller.SendPacket(new Packets.ChatMessage(message));
+      {
+        controller.netMan.SendToAll(controller.WritePacket(new Packets.ChatMessage(message)), DeliveryMethod.ReliableOrdered);
+      }
       
       // Write a sort of detailed message when something went wrong.
       else
-        UnityEngine.Debug.LogError
+        Debug.LogError
         (
           $"{typeof(NetChat).FullName} is not in a state where chat messages can be sent. IsReady:{IsReady}"
         );
+    }
+    
+    private static void messageReceived(Packets.ChatMessage messagePacket)
+    {
+      string msg = messagePacket.message;
+
+      if(isServer)
+      {
+        // Debug.Log(msg);
+        SendMessage(msg);
+      }
+
+      Debug.Log(msg);
+
+      if(OnMessageReceived != null)
+        OnMessageReceived.Invoke(msg);
     }
   }
 }

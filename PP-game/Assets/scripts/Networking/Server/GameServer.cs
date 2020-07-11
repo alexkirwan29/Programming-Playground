@@ -12,47 +12,68 @@ namespace PP.Networking.Server
 {
   public class GameServer : GameNetworker, INetEventListener
   {
+    public ServerSettings settings;
+
     internal override void Create()
     {
-      throw new System.NotImplementedException();
+      // Create the default server settings if none exist.
+      if(settings == null)
+        settings = new ServerSettings();
+
+      // Create the NetManager.
+      netMan = new NetManager(this)
+      {
+        AutoRecycle = true,
+        IPv6Enabled = settings.IPv6,
+      };
+
+      cachedWriter = new NetDataWriter();
+
+      // Start listening for packets.
+      netMan.Start(settings.ListenPort);
+
+      Debug.Log($"Server Listening on port {netMan.LocalPort}");
     }
 
     internal override void Destroy()
     {
-      throw new System.NotImplementedException();
+
     }
     public void OnConnectionRequest(ConnectionRequest request)
     {
-      throw new System.NotImplementedException();
+      Debug.Log($"Connection request from {request.RemoteEndPoint.Address.ToString()}", this);
+      request.Accept();
     }
 
     public void OnNetworkError(IPEndPoint endPoint, SocketError socketError)
     {
-      throw new System.NotImplementedException();
+      Debug.LogError($"Network Error: {socketError}", this);
     }
 
     public void OnNetworkLatencyUpdate(NetPeer peer, int latency)
     {
-      throw new System.NotImplementedException();
+      // TODO: Show latency in a meaningful way.
     }
 
     public void OnNetworkReceive(NetPeer peer, NetPacketReader reader, DeliveryMethod deliveryMethod)
     {
-      // throw new System.NotImplementedException();
+      // Read the packets using the packet processor.
+      packetProcessor.ReadAllPackets(reader);
     }
 
     public void OnNetworkReceiveUnconnected(IPEndPoint remoteEndPoint, NetPacketReader reader, UnconnectedMessageType messageType)
     {
-      throw new System.NotImplementedException();
+      Debug.Log($"Unconnected {messageType} message from {remoteEndPoint.Address.ToString()}", this);
     }
 
     public void OnPeerConnected(NetPeer peer)
     {
-      throw new System.NotImplementedException();
+      NetChat.SendMessage($"Player joined the game");
     }
 
     public void OnPeerDisconnected(NetPeer peer, DisconnectInfo disconnectInfo)
     {
+      NetChat.SendMessage($"Player lost connection. Reason: {disconnectInfo.Reason}");
       throw new System.NotImplementedException();
     }
   }

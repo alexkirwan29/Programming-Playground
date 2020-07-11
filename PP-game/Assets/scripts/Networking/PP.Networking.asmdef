@@ -1,0 +1,15 @@
+{
+    "name": "PP.Networking",
+    "references": [
+        "GUID:9a52c8cb275be2d03902d65032fc4d32"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

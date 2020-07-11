@@ -1,25 +1,37 @@
 using UnityEngine;
+using System.Linq;
 
 namespace PP.Networking
 {
   public class NetworkManager : MonoBehaviour
   {
+    public Server.GameServer Server;
+    public Client.GameClient Client;
+
+    private StdLogger logger = new StdLogger();
+
     public void Start()
     {
-      #if PP_SERVER
-      startServer();
-      #else
-      startCient();
-      #endif
+      if(Application.isBatchMode)
+      {
+        System.Console.TreatControlCAsInput = false;
+        Debug.unityLogger.logHandler = logger;
+        Debug.Log("Starting as a Server");
+        Destroy(Client);
+        Server.StartNetworker();
+      }
+      else
+      {
+        Destroy(Server);
+        Client.StartNetworker();
+        Client.Connect("localhost");
+      }
     }
 
-    private void startServer()
+    private void Update()
     {
-
-    }
-    private void startCient()
-    {
-
+      if(Input.GetKeyDown(KeyCode.F1))
+        NetChat.SendMessage("Hello World! This is a test message sent from a client");
     }
   }
 }

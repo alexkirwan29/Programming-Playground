@@ -9,12 +9,15 @@ public class ServerBuild
   [MenuItem("Build/Build Server")]
   public static string Build()
   {
+    UnityEngine.Debug.Log("Starting Build");
     // The defines for this build.
     string defines = "PP_SERVER";
 
     // Save the old defines before we set the new defines.
-    var oldDefines = PlayerSettings.GetScriptingDefineSymbolsForGroup(BuildTargetGroup.Standalone);
-    PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Standalone, defines);
+    // var oldDefines = PlayerSettings.GetScriptingDefineSymbolsForGroup(BuildTargetGroup.Standalone);
+    // PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Standalone, defines);
+
+    UnityEngine.Debug.Log("Building with the following defines " + defines);
 
     // Build the project as a PP_SERVER.
     string filename;
@@ -29,7 +32,7 @@ public class ServerBuild
     }
 
     // Set the defines back to how they where before we started poking around.
-    PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Standalone, oldDefines);
+    // PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Standalone, oldDefines);
 
     return filename;
   }
@@ -61,7 +64,7 @@ public class ServerBuild
 
       // Set the build target and extra options.
       options.targetGroup = BuildTargetGroup.Standalone;
-      options.options = BuildOptions.EnableHeadlessMode | BuildOptions.AllowDebugging;
+      options.options = BuildOptions.EnableHeadlessMode | BuildOptions.Development;
 
       // Actually build the server.
       BuildPipeline.BuildPlayer(options);
