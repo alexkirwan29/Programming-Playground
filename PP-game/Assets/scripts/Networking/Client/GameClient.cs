@@ -10,11 +10,9 @@ using System.Net.Sockets;
 
 namespace PP.Networking.Client
 {
-  public class GameClient : MonoBehaviour, INetEventListener
+  public class GameClient : GameNetworker, INetEventListener
   {
-    public int port = 5600;
-    private NetManager netMan;
-    private void Awake()
+    internal override void Create()
     {
       DontDestroyOnLoad(gameObject);
 
@@ -24,11 +22,13 @@ namespace PP.Networking.Client
         IPv6Enabled = false,
       };
 
-      netMan.Start(5600);
+      netMan.Start();
               
     }
-    private void OnDestroy() {
-      netMan.Stop();
+    internal override void Destroy()
+    {
+      if(netMan != null && netMan.IsRunning)
+        netMan.Stop(true);
     }
     public void OnConnectionRequest(ConnectionRequest request)
     {

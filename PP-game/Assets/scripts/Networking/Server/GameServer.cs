@@ -10,8 +10,17 @@ using System.Net.Sockets;
 
 namespace PP.Networking.Server
 {
-  public class GameServer : MonoBehaviour, INetEventListener
+  public class GameServer : GameNetworker, INetEventListener
   {
+    internal override void Create()
+    {
+      throw new System.NotImplementedException();
+    }
+
+    internal override void Destroy()
+    {
+      throw new System.NotImplementedException();
+    }
     public void OnConnectionRequest(ConnectionRequest request)
     {
       throw new System.NotImplementedException();
@@ -29,7 +38,7 @@ namespace PP.Networking.Server
 
     public void OnNetworkReceive(NetPeer peer, NetPacketReader reader, DeliveryMethod deliveryMethod)
     {
-      throw new System.NotImplementedException();
+      // throw new System.NotImplementedException();
     }
 
     public void OnNetworkReceiveUnconnected(IPEndPoint remoteEndPoint, NetPacketReader reader, UnconnectedMessageType messageType)
