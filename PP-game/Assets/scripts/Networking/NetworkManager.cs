@@ -9,14 +9,11 @@ namespace PP.Networking
   {
     public Server.GameServer Server;
     public Client.GameClient Client;
-
-    private StdLogger logger = new StdLogger();
-
-    public void Start()
+    public void Awake()
     {
       if(Application.isBatchMode)
       {
-        StdLogger.MakeDefaultLogger(true);
+        Server.gameObject.AddComponent<ServerConsole>();
         Debug.Log("Starting as a Server");
         Destroy(Client);
         Server.StartNetworker();

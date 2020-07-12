@@ -1,3 +1,3 @@
 #!/bin/bash
-TERM=xterm
-screen -F builds/server -batchmode -nographics -server
+TERM="xterm"
+./builds/server -batchmode -nographics -server
