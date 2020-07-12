@@ -1,7 +1,8 @@
 {
     "name": "PP.Networking",
     "references": [
-        "GUID:9a52c8cb275be2d03902d65032fc4d32"
+        "GUID:9a52c8cb275be2d03902d65032fc4d32",
+        "GUID:d2fc3b51f1f8b1aaba10845fbccbaccb"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

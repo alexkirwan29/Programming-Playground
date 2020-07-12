@@ -1,6 +1,8 @@
 using UnityEngine;
 using System.Linq;
 
+using PP.Utils;
+
 namespace PP.Networking
 {
   public class NetworkManager : MonoBehaviour
@@ -14,8 +16,7 @@ namespace PP.Networking
     {
       if(Application.isBatchMode)
       {
-        System.Console.TreatControlCAsInput = false;
-        Debug.unityLogger.logHandler = logger;
+        StdLogger.MakeDefaultLogger(true);
         Debug.Log("Starting as a Server");
         Destroy(Client);
         Server.StartNetworker();

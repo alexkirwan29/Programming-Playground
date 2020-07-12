@@ -6,79 +6,80 @@ using System;
 using LiteNetLib;
 using LiteNetLib.Utils;
 
-namespace PP.Networking
-{
-  public static class NetChat
-  {
-    // Allow other code to know if the controller is running.
-    public static bool IsReady
-    {
-      get
-      {
+namespace PP.Networking {
+  public static class NetChat {
+
+    public static bool IsReady {
+      get {
         return controller.IsRunning;
       }
     }
 
-    private static bool isServer;
+    public class MessageFilterArgs : EventArgs {
+      public string Message { get; set; }
+      public bool StopMessage { get; set; }
 
-    // The action that is called when a chat message has been received.
+      public MessageFilterArgs(string message) {
+        Message = message;
+        StopMessage = false;
+      }
+    }
+
+    public static Action<MessageFilterArgs> OnFilterMessage;
     public static Action<string> OnMessageReceived;
 
-    // The controller that this Class interacts with.
+    private static bool isServer;
     private static GameNetworker controller;
 
-    // Initialises and subscribes to events.
-    public static void Initialise(GameNetworker controller)
-    {
+
+
+    public static void Initialise(GameNetworker controller) {
       // Subscribe to the ChatMessage packet.
-      controller.packetProcessor.SubscribeReusable<Packets.ChatMessage>(messageReceived);
+      controller.packetProcessor.SubscribeReusable<Packets.ChatMessage>(MessageReceived);
 
-
-      // Get a reference to the controller.
+      // Get a reference to the controller and set isServer if needed.
       NetChat.controller = controller;
-
       isServer = controller.GetType() == typeof(Server.GameServer);
     }
 
-    public static void DeInitialise()
-    {
-      NetChat.controller.packetProcessor.RemoveSubscription<Packets.ChatMessage>();
+    public static void DeInitialise() {
+      // Unsubscribe from events.
+      controller.packetProcessor.RemoveSubscription<Packets.ChatMessage>();
     }
 
-    /// <summary>
-    /// Sends a chat message to all players.
-    /// </summary>
-    /// <param name="message"></param>
-    public static void SendMessage(string message)
-    {
-      // Only send the chat message packet if the controller is ready.
-      if(IsReady)
-      {
-        controller.netMan.SendToAll(controller.WritePacket(new Packets.ChatMessage(message)), DeliveryMethod.ReliableOrdered);
+
+    public static void SendMessage(string message) {
+      if (IsReady) {
+        // Create the packet and send it it all peers.
+        var packet = new Packets.ChatMessage(message);
+        controller.netMan.SendToAll(controller.WritePacket(packet), DeliveryMethod.ReliableOrdered);
+      } else {
+        Debug.LogError($"{typeof(NetChat).FullName} isn't ready to send chat messages.");
       }
-      
-      // Write a sort of detailed message when something went wrong.
-      else
-        Debug.LogError
-        (
-          $"{typeof(NetChat).FullName} is not in a state where chat messages can be sent. IsReady:{IsReady}"
-        );
     }
-    
-    private static void messageReceived(Packets.ChatMessage messagePacket)
-    {
-      string msg = messagePacket.message;
 
-      if(isServer)
-      {
-        // Debug.Log(msg);
-        SendMessage(msg);
+    private static void MessageReceived(Packets.ChatMessage messagePacket) {
+      // A message has been received.
+      // If we are the server, filter the message and stop the message if any
+      // filter asked us to. Finally Invoke OnMessageReceived.
+
+      var args = new MessageFilterArgs(messagePacket.message);
+
+      if (isServer) {
+        // Invoke OnFilterMessage.
+        if (OnFilterMessage != null)
+          OnFilterMessage.Invoke(args);
+
+        if (!args.StopMessage) {
+          Debug.Log(args.Message);
+          SendMessage(args.Message);
+        }
       }
 
-      Debug.Log(msg);
-
-      if(OnMessageReceived != null)
-        OnMessageReceived.Invoke(msg);
+      // Invoke the OnMessageReceived action.
+      if (OnMessageReceived != null && !args.StopMessage) {
+        OnMessageReceived.Invoke(args.Message);
+      }
     }
   }
 }
