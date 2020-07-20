@@ -22,7 +22,7 @@ namespace PP.Networking
       {
         Destroy(Server);
         Client.StartNetworker();
-        Client.Connect("localhost");
+        Client.Connect("120.149.27.156");
       }
     }
 
