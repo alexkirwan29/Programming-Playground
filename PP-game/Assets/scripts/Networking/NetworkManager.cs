@@ -22,7 +22,11 @@ namespace PP.Networking
       {
         Destroy(Server);
         Client.StartNetworker();
+<<<<<<< HEAD
         Client.Connect("tomp.id.au");
+=======
+        Client.Connect("120.149.27.156");
+>>>>>>> 965201523a502de6805b5643f2f2238192d9f223
       }
     }
 

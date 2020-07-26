@@ -79,7 +79,7 @@ public class ServerBuild {
     // For windows put the build in builds\server.exe
 #if UNITY_STANDALONE_WIN
       options.locationPathName = "builds\\server.exe";
-      options.target = BuildTarget.StandaloneWindows64
+        options.target = BuildTarget.StandaloneWindows64;
 
       // For linux put the build in builds/server
 #elif UNITY_STANDALONE_LINUX

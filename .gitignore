@@ -3,3 +3,4 @@ PP-game/ProjectSettings/ProjectVersion.txt
 PP-game/Packages/packages-lock.json
 PP-game/Logs/
 PP-game/.vs/
+PP-game/Assets/Libs/LiteNetLib/LiteNetLib.csproj.meta
