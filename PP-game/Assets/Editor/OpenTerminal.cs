@@ -6,6 +6,7 @@
 
 // https://gist.github.com/Those45Ninjas/8f4f6bb0c1aab30b7ea9fb873c1c2074
 
+using System;
 using System.Diagnostics;
 using UnityEngine;
 using UnityEditor;
@@ -17,6 +18,7 @@ public class OpenTerminalUtility
 	[Shortcut("OpenTerminal", null, KeyCode.T, ShortcutModifiers.Action, displayName = "Open Terminal")]
 	public static void OpenTerminal()
 	{
+    UnityEngine.Debug.Log(Environment.GetEnvironmentVariable("PATH"));
 		// Create a new process of the gnome-terminal.
 		using (Process newProcess = new Process())
 		{
