@@ -72,23 +72,23 @@ public class TerrainGenerator : MonoBehaviour {
 
         //Normally we can do this. However, we have to handle the edge case (Literally at the edge of the texture)
         try {
-            x_slope = Mathf.Abs(heightmap[x + 1, y] - heightmap[x - 1, y]);
+            x_slope =     Mathf.Abs(Mathf.Atan(heightmap[x + 1, y] / heightmap[x - 1, y]));
         } catch {
             try {
-                x_slope = Mathf.Abs(heightmap[x, y] - heightmap[x - 1, y]);
+                x_slope = Mathf.Abs(Mathf.Atan(heightmap[x, y]     / heightmap[x - 1, y]));
             } catch {
-                x_slope = Mathf.Abs(heightmap[x + 1, y] - heightmap[x, y]);
+                x_slope = Mathf.Abs(Mathf.Atan(heightmap[x + 1, y] / heightmap[x, y]    ));
             }
         }
 
         //Repeat for Y
         try {
-            y_slope = Mathf.Abs(heightmap[x, y + 1] - heightmap[x, y - 1]);
+            y_slope =     Mathf.Abs(Mathf.Atan(heightmap[x, y + 1] / heightmap[x, y - 1]));
         } catch {
             try {
-                y_slope = Mathf.Abs(heightmap[x, y] - heightmap[x, y - 1]);
+                y_slope = Mathf.Abs(Mathf.Atan(heightmap[x, y]     / heightmap[x, y - 1]));
             } catch {
-                y_slope = Mathf.Abs(heightmap[x, y + 1] - heightmap[x, y]);
+                y_slope = Mathf.Abs(Mathf.Atan(heightmap[x, y + 1] / heightmap[x, y]    ));
             }
         }
 
@@ -104,25 +104,20 @@ public class TerrainGenerator : MonoBehaviour {
         return new Color(1,1,1);
     }
 
-    void GenerateTerrainMap(float[,] heightmap)
-    {
+    void GenerateTerrainMap(float[,] heightmap) {
         Texture2D tex2D = new Texture2D(heightmap.GetLength(0), heightmap.GetLength(1));
 
         float maxHeight = 0;
         float minHeight = Mathf.Infinity;
-        for (int x = 0; x < tex2D.width; x++)
-        {
-            for (int y = 0; y < tex2D.width; y++)
-            {
+        for (int x = 0; x < tex2D.width; x++) {
+            for (int y = 0; y < tex2D.width; y++) {
                 if (heightmap[x, y] > maxHeight) { maxHeight = heightmap[x, y]; }
                 if (heightmap[x, y] < minHeight) { minHeight = heightmap[x, y]; }
             }
         }
 
-        for (int x = 0; x < tex2D.width; x++)
-        {
-            for (int y = 0; y < tex2D.width; y++)
-            {
+        for (int x = 0; x < tex2D.width; x++) {
+            for (int y = 0; y < tex2D.width; y++) {
                 float heightOfPixel = (heightmap[x, y] - minHeight) / maxHeight;
                 tex2D.SetPixel(x, y, new Color(heightOfPixel, heightOfPixel, heightOfPixel));
             }
