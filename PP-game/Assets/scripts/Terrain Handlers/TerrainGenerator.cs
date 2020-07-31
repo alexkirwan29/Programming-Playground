@@ -7,8 +7,9 @@ public class TerrainGeneratorCustomInspector : Editor {
         DrawDefaultInspector();
 
         if (GUILayout.Button("Generate New Terrain")) {
-            BaseTerrainGenerator.GenerateNewTerrain(
-                Selection.activeGameObject.GetComponent<Terrain>(),
+            Terrain terrain = Selection.activeGameObject.GetComponent<Terrain>();
+            new BaseTerrainGenerator().GenerateNewTerrain(
+                terrain, 2, 4,
                 150, .15f,
                 50, 0.07f,
                 25, 0.03f,
