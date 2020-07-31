@@ -1,15 +1,41 @@
 ﻿using UnityEngine;
 
 public static class BaseTerrainGenerator {
-    public static void GenerateNewTerrain(Terrain terrain, int smoothing, float slopeMultiplier, float scale_1, float height_1, float scale_2, float height_2, float scale_3, float height_3, float scale_4, float height_4) {
+    public static Terrain startTerrain;
+    public static float x_offset;
+    public static float y_offset;
+
+    public static void GenerateNewTerrainInspector(
+        Terrain terrain,
+        Color A, Color B,
+        int smoothing, float slopeMultiplier,
+        float scale_1, float height_1,
+        float scale_2, float height_2,
+        float scale_3, float height_3,
+        float scale_4, float height_4) {
+
+
+        startTerrain = terrain;
+        GenerateNewTerrain(terrain, A, B, smoothing, slopeMultiplier, scale_1, height_1, scale_2, height_2, scale_3, height_3, scale_4, height_4);
+    }
+
+    public static void GenerateNewTerrain(
+        Terrain terrain,
+        Color A, Color B,
+        int smoothing, float slopeMultiplier,
+        float scale_1, float height_1,
+        float scale_2, float height_2,
+        float scale_3, float height_3,
+        float scale_4, float height_4 ) {
+
         //We want to actually generate the terrain now
         TerrainData terrainData = terrain.terrainData;
 
         int xRes = 513; int yRes = 513;
         float[,] heightmap = new float[xRes, yRes];
 
-        float x_offset = Random.Range(0, 100);
-        float y_offset = Random.Range(0, 100);
+        x_offset = Random.Range(0, 10000);
+        y_offset = Random.Range(0, 10000);
 
         for (int y_pos = 0; y_pos < yRes; y_pos++) {
             for (int x_pos = 0; x_pos < xRes; x_pos++) {
@@ -26,7 +52,7 @@ public static class BaseTerrainGenerator {
         Texture2D tex2D = new Texture2D(513, 513);
         for (int y = 0; y < terrainData.alphamapResolution; y++) {
             for (int x = 0; x < terrainData.alphamapResolution; x++) {
-                tex2D.SetPixel(y, x, SlopeToColour(GetAverageSlopeAtPosition(heightmap, x, y, smoothing) * slopeMultiplier));
+                tex2D.SetPixel(y, x, SlopeToColour(A, B, GetAverageSlopeAtPosition(heightmap, x, y, smoothing) * slopeMultiplier));
             }
         }
 
@@ -72,23 +98,22 @@ public static class BaseTerrainGenerator {
         return Mathf.Atan((max - min) / Mathf.Sqrt(2)) * Mathf.Rad2Deg;
     }
 
-    //Color SlopeToColour(float slope) { return BlendColour(new Color(0,152,0), new Color(102,51,0), slope); }
-    static Color SlopeToColour(float slope) { return BlendColour(NewColor(102,51,0), NewColor(0, 152, 0), slope); }
-
-    static Color BlendColour(Color A, Color B, float t) {
+    static Color SlopeToColour(Color A, Color B, float t) {
         //t = Mathf.Sqrt(t);
-        return new Color() {
-            r = A.r * t + B.r * (1 - t),
-            g = A.g * t + B.g * (1 - t),
-            b = A.b * t + B.b * (1 - t),
-            a = A.a * t + B.a * (1 - t)
-        };
+        //return new Color() {
+        //    r = A.r * t + B.r * (1 - t),
+        //    g = A.g * t + B.g * (1 - t),
+        //    b = A.b * t + B.b * (1 - t),
+        //    a = A.a * t + B.a * (1 - t)
+        //};
+        if (t > 0.6f) { return new Color() { r = A.r, g = A.g, b = A.b }; }
+        return new Color() { r = B.r, g = B.g, b = B.b };
     }
 
     static float[,] HeightmapFromTerrainData(TerrainData terrainData) {
         return terrainData.GetHeights(0, 0, terrainData.heightmapResolution - 1, terrainData.heightmapResolution - 1);
     }
 
-    static Color NewColor(int r, int g, int b) { return NewColor(r, g, b, 255); }
-    static Color NewColor(int r, int g, int b, int a) { return new Color((float)r / 255, (float)g / 255, (float)b / 255, (float)a / 255); }
+    public static Color NewColor(int r, int g, int b) { return NewColor(r, g, b, 255); }
+    public static Color NewColor(int r, int g, int b, int a) { return new Color((float)r / 255, (float)g / 255, (float)b / 255, (float)a / 255); }
 }
