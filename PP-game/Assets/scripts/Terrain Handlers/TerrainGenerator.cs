@@ -8,12 +8,14 @@ public class TerrainGeneratorCustomInspector : Editor {
 
         if (GUILayout.Button("Generate New Terrain")) {
             Terrain terrain = Selection.activeGameObject.GetComponent<Terrain>();
-            new BaseTerrainGenerator().GenerateNewTerrain(
-                terrain, 2, 4,
-                150, .15f,
-                50, 0.07f,
-                25, 0.03f,
-                2, 0.003f
+            BaseTerrainGenerator.GenerateNewTerrain(
+                terrain,    // Reference to our Terrain Object
+
+                0, 8,       // Color Smoothing Value,               Slope Multiplier
+                150, .15f,  // Perlin Noise Octave Scale 1,         Perlin Noise Octave Height 1
+                50, 0.07f,  // Perlin Noise Octave Scale 2,         Perlin Noise Octave Height 2
+                25, 0.03f,  // Perlin Noise Octave Scale 3,         Perlin Noise Octave Height 3
+                5, 0.002f   // Perlin Noise Octave Scale 4,         Perlin Noise Octave Height 4
             );
         }
     }

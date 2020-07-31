@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 
-public class BaseTerrainGenerator {
-    public void GenerateNewTerrain(Terrain terrain, int smoothing, float slopeMultiplier, float scale_1, float height_1, float scale_2, float height_2, float scale_3, float height_3, float scale_4, float height_4) {
+public static class BaseTerrainGenerator {
+    public static void GenerateNewTerrain(Terrain terrain, int smoothing, float slopeMultiplier, float scale_1, float height_1, float scale_2, float height_2, float scale_3, float height_3, float scale_4, float height_4) {
         //We want to actually generate the terrain now
         TerrainData terrainData = terrain.terrainData;
 
@@ -37,7 +37,9 @@ public class BaseTerrainGenerator {
         System.IO.File.WriteAllBytes("Assets/graphics/Terrain Map.jpg",TerrainManager.GenerateTerrainMap(heightmap).EncodeToJPG());
     }
 
-    float GetAverageSlopeAtPosition(float[,] heightmap, int x, int y, int smoothing) {
+    static float GetAverageSlopeAtPosition(float[,] heightmap, int x, int y, int smoothing) {
+        if (smoothing == 0) { return GetSlopeAtPosition(heightmap, x, y); }
+
         float numberOfPoints = 0, result = 0;
         for (int x_offset = -smoothing; x_offset < smoothing; x_offset++) {
             for (int y_offset = -smoothing; y_offset < smoothing; y_offset++) {
@@ -50,7 +52,7 @@ public class BaseTerrainGenerator {
         return result / numberOfPoints;
     }
 
-    float GetSlopeAtPosition(float[,] heightmap, int x_pos, int y_pos) {
+    static float GetSlopeAtPosition(float[,] heightmap, int x_pos, int y_pos) {
         float min = 0, max = 0;
         
         try {           min = Mathf.Min(heightmap[x_pos, y_pos], heightmap[x_pos + 1, y_pos], heightmap[x_pos, y_pos + 1], heightmap[x_pos + 1, y_pos + 1]);
@@ -71,10 +73,10 @@ public class BaseTerrainGenerator {
     }
 
     //Color SlopeToColour(float slope) { return BlendColour(new Color(0,152,0), new Color(102,51,0), slope); }
-    Color SlopeToColour(float slope) { return Color.Lerp(Color.red, Color.green, slope); }
+    static Color SlopeToColour(float slope) { return BlendColour(NewColor(102,51,0), NewColor(0, 152, 0), slope); }
 
-    Color BlendColour(Color A, Color B, float t) {
-        t = Mathf.Sqrt(t);
+    static Color BlendColour(Color A, Color B, float t) {
+        //t = Mathf.Sqrt(t);
         return new Color() {
             r = A.r * t + B.r * (1 - t),
             g = A.g * t + B.g * (1 - t),
@@ -83,7 +85,10 @@ public class BaseTerrainGenerator {
         };
     }
 
-    float[,] HeightmapFromTerrainData(TerrainData terrainData) {
+    static float[,] HeightmapFromTerrainData(TerrainData terrainData) {
         return terrainData.GetHeights(0, 0, terrainData.heightmapResolution - 1, terrainData.heightmapResolution - 1);
     }
+
+    static Color NewColor(int r, int g, int b) { return NewColor(r, g, b, 255); }
+    static Color NewColor(int r, int g, int b, int a) { return new Color((float)r / 255, (float)g / 255, (float)b / 255, (float)a / 255); }
 }
