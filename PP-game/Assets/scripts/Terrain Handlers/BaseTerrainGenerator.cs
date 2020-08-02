@@ -57,10 +57,16 @@ public static class BaseTerrainGenerator {
         }
 
         //This is to convert the Texture2D that any sane person would use into the bizarre TerrainLayer array that Unity3D terrain textures use
+        System.IO.File.WriteAllBytes("Assets/graphics/Terrain Texture.jpg", tex2D.EncodeToJPG());
+
+        tex2D = new Texture2D(2, 2);
+        tex2D.LoadImage(System.IO.File.ReadAllBytes("Assets/graphics/Terrain Texture.jpg"));
+
         TerrainManager.SetTexture(terrainData, tex2D);
 
         //Now generate the terrain map
         System.IO.File.WriteAllBytes("Assets/graphics/Terrain Map.jpg",TerrainManager.GenerateTerrainMap(heightmap).EncodeToJPG());
+        
     }
 
     static float GetAverageSlopeAtPosition(float[,] heightmap, int x, int y, int smoothing) {
