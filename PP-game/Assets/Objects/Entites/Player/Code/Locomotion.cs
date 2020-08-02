@@ -1,171 +1,105 @@
-﻿// This Document has quite an un-convectional formatting style. Just playing around with things.
-
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace PP.Entities.Player {
-
   [RequireComponent(typeof(CharacterController))]
   public class Locomotion : MonoBehaviour {
 
+    private readonly int fallingHash = Animator.StringToHash("IsFalling");
+    [SerializeField] public Animator Animator;
+
+    public float SpeedScale = 1f;
+    public float AccelerationScale = 1f;
+
+    [SerializeField] internal float jumpFudge = 0.125f;
+    [SerializeField] internal float jumpImpulse = 200;
+
+    [SerializeField] internal float MoveSpeed = 5;
+    [SerializeField] internal float SneakSpeed = 1;
+    [SerializeField] internal float Acceleration = 1.8f;
+
+    [HideInInspector] public Vector3 Velocity;
+    [HideInInspector] public bool OnGround;
+
+    InputFrame input = new InputFrame();
+    internal float jumpTime = float.NegativeInfinity;
+
+    private MoveBehaviour behaviour;
+    public MoveBehaviour Behaviour {
+      get => behaviour;
+      set {
+        if (behaviour != null)
+          behaviour.Disable();
+
+        behaviour = value;
+
+        if (behaviour != null)
+          behaviour.Enable();
+      }
+    }
+
+    private CharacterController character;
+
+    private void Awake() {
+      character = GetComponent<CharacterController>();
+      Behaviour = new Walk(this);
+    }
 
     private void Update() {
-      MoveTick();
-      LookTick();
+      // Set our ground state.
+      OnGround = character.isGrounded;
+      Animator.SetBool(fallingHash, !OnGround);
+
+      // If we have a move behaviour, move.
+      if (behaviour != null)
+        behaviour.MoveTick(ref input, Time.deltaTime);
+
+      // Do some gravity when we are on the ground.
+      if (!OnGround)
+        Velocity.y += Physics.gravity.y * Time.deltaTime;
+
+      // Move the character every frame based on the velocity.
+      character.Move(Velocity * Time.deltaTime);
     }
 
 
-    // -------------------------------------------------------
-    //                Movement and Jump Code
-    // -------------------------------------------------------
 
-    private Vector3 velocity;
-
-    private float jumpInputTime = float.NegativeInfinity;
-
-    private bool doSneak = false;
-    private bool doWalk = false;
-
-    private Vector2 moveInput;
-
-    
-
-    private void MoveTick() {
-
-      // Transform the input to world space.
-      Vector3 input = new Vector3(moveInput.x, 0, moveInput.y) * Time.deltaTime;
-      input = transform.TransformVector(input);
-
-      if (character.isGrounded) {
-        // Set our speeds.
-        if (doSneak)
-          input *= sneakSpeed;
-        else if (doWalk)
-          input *= walkSpeed;
-        else
-          input *= runSpeed;
-
-        // Apply our input to the velocity.
-        velocity.x = input.x;
-        velocity.z = input.z;
-
-        // Jump if the jump key was pressed recently.
-        if (jumpInputTime + jumpFudgeTime > Time.timeSinceLevelLoad) {
-          velocity.y = jumpImpulse;
-          animator.SetTrigger(jumpHash);
-          jumpInputTime = float.NegativeInfinity;
-        }
-      } else {
-        // Accelerate our velocity while falling.
-        velocity += input * fallMoveSpeed;
-        // Apply Gravity.
-        velocity.y -= gravity * Time.deltaTime;
-      }
-
-      // Move the character.
-      character.Move(velocity);
-      animator.SetFloat(moveSpeedHash, character.velocity.magnitude);
-    }
+    // -----------------------------------------------------------------------
+    // Events that are called from the PlayerInput component
+    // -----------------------------------------------------------------------
 
     public void OnMove(InputAction.CallbackContext context) {
-      moveInput = context.action.ReadValue<Vector2>();
+      input.Move = context.action.ReadValue<Vector2>();
     }
 
     public void OnCrouch(InputAction.CallbackContext context) {
-      doSneak = context.ReadValueAsButton();
-    }
-
-    public void OnWalk(InputAction.CallbackContext context) {
-      doWalk = context.ReadValueAsButton();
+      input.Sneak = context.ReadValueAsButton();
     }
 
     public void OnJump(InputAction.CallbackContext context) {
+      input.TryJump = context.ReadValueAsButton();
       if (context.started)
-        jumpInputTime = Time.timeSinceLevelLoad;
+        jumpTime = Time.timeSinceLevelLoad + jumpFudge;
     }
 
+    // -----------------------------------------------------------------------
+    // Classes used within this script
+    // -----------------------------------------------------------------------
 
-
-
-
-    // -------------------------------------------------------
-    //              Head Code
-    // -------------------------------------------------------
-
-    private Vector2 lookInput;
-
-    [SerializeField]
-    private Transform head;
-    const float HEAD_LIMIT = 89.9f;
-
-    float headAngle = 0;
-
-
-
-    public void OnLook(InputAction.CallbackContext context) {
-      lookInput = context.action.ReadValue<Vector2>();
-      // TODO: Tie look input to deltaTime UNLESS we are using a mouse.
+    public abstract class MoveBehaviour {
+      internal Locomotion player;
+      protected MoveBehaviour(Locomotion player) {
+        this.player = player;
+      }
+      public abstract void MoveTick(ref InputFrame input, float deltaTime);
+      public virtual void Enable() { }
+      public virtual void Disable() { }
     }
 
-    private void LookTick() {
-      // Rotate the root gameobject of the player.
-      transform.Rotate(Vector3.up, lookInput.x, Space.Self);
-
-      // Rotate the x axis of the player's head with some sensible limits.
-      headAngle = Mathf.Clamp(headAngle - lookInput.y, -HEAD_LIMIT, HEAD_LIMIT);
-      head.localRotation = Quaternion.Euler(headAngle, 0, 0);
-
-      // Tell the animator how to blend our look up and down animations.
-      animator.SetFloat(headLookHash, Mathf.InverseLerp(-HEAD_LIMIT, HEAD_LIMIT, headAngle));
+    public class InputFrame {
+      public Vector2 Move;
+      public bool TryJump;
+      public bool Sneak;
     }
-
-
-
-
-
-    // -------------------------------------------------------
-    //            Set-up and Caching of objects
-    // -------------------------------------------------------
-
-    [SerializeField]
-    private Animator animator;
-
-    // Cached animation controller string hashes.
-    private readonly int fallingHash = Animator.StringToHash("IsFalling");
-    private readonly int jumpHash = Animator.StringToHash("Jump");
-    private readonly int moveSpeedHash = Animator.StringToHash("Move Speed");
-    private readonly int headLookHash = Animator.StringToHash("Head Look Vertical");
-
-    // Get the character controller onEnable.
-    private CharacterController character;
-    private void OnEnable() {
-      character = GetComponent<CharacterController>();
-    }
-
-
-
-
-
-    // -------------------------------------------------------
-    //            Paramaters exposed to the editor
-    // -------------------------------------------------------
-
-    // Move speeds.
-    [SerializeField]
-    private float sneakSpeed = 0.5f;
-    [SerializeField]
-    private float walkSpeed = 1.5f;
-    [SerializeField]
-    private float runSpeed = 3f;
-    [SerializeField]
-    private float fallMoveSpeed = 1f;
-
-    [SerializeField]
-    private float jumpFudgeTime = 0.2f;
-    [SerializeField]
-    private float jumpImpulse = 200;
-
-    [SerializeField]
-    private float gravity = 0.7f;
   }
 }

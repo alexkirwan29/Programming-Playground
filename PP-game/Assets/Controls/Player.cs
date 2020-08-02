@@ -29,17 +29,9 @@ namespace PP.Controls
                     ""interactions"": """"
                 },
                 {
-                    ""name"": ""Duck"",
+                    ""name"": ""Sneak"",
                     ""type"": ""Button"",
                     ""id"": ""f857c668-384c-4e6b-bc96-d2b89774e6dd"",
-                    ""expectedControlType"": ""Button"",
-                    ""processors"": """",
-                    ""interactions"": """"
-                },
-                {
-                    ""name"": ""Walk"",
-                    ""type"": ""Button"",
-                    ""id"": ""6eef71e6-e687-4b68-bf7b-999d6f4e0442"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """"
@@ -48,8 +40,8 @@ namespace PP.Controls
                     ""name"": ""Move"",
                     ""type"": ""Value"",
                     ""id"": ""d7ae8e79-c36b-451b-8d47-70f0f9d2e29f"",
-                    ""expectedControlType"": ""Vector2"",
-                    ""processors"": """",
+                    ""expectedControlType"": ""Dpad"",
+                    ""processors"": ""NormalizeVector2"",
                     ""interactions"": """"
                 },
                 {
@@ -87,44 +79,22 @@ namespace PP.Controls
                 {
                     ""name"": """",
                     ""id"": ""3ddc876c-3964-429b-bae0-74c25a4b9eb3"",
-                    ""path"": ""<Keyboard>/leftCtrl"",
+                    ""path"": ""<Keyboard>/shift"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": ""Computer"",
-                    ""action"": ""Duck"",
+                    ""action"": ""Sneak"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
                 {
                     ""name"": """",
                     ""id"": ""774ceffd-1296-49d5-8e62-4667b3a4fbb7"",
-                    ""path"": ""<Gamepad>/dpad/up"",
+                    ""path"": ""<Gamepad>/leftStickPress"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": ""Gamepad"",
-                    ""action"": ""Duck"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""0a50a7b8-6a1f-4830-b651-075598c4195d"",
-                    ""path"": ""<Keyboard>/leftShift"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": ""Computer"",
-                    ""action"": ""Walk"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""b61f9b85-1f86-4179-87fe-cffbc386d35f"",
-                    ""path"": ""<Gamepad>/buttonNorth"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": ""Gamepad"",
-                    ""action"": ""Walk"",
+                    ""action"": ""Sneak"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -188,7 +158,7 @@ namespace PP.Controls
                     ""id"": ""ea6ba949-5ba3-4ff4-88f3-635f62ec1bf7"",
                     ""path"": ""<Gamepad>/leftStick"",
                     ""interactions"": """",
-                    ""processors"": """",
+                    ""processors"": ""StickDeadzone(min=0.35)"",
                     ""groups"": ""Gamepad"",
                     ""action"": ""Move"",
                     ""isComposite"": false,
@@ -210,7 +180,7 @@ namespace PP.Controls
                     ""id"": ""aba6a999-7039-4787-9bf1-891ff71b0c71"",
                     ""path"": ""<Gamepad>/rightStick"",
                     ""interactions"": """",
-                    ""processors"": ""ScaleVector2(x=4,y=4)"",
+                    ""processors"": ""StickDeadzone,ScaleVector2(x=7,y=7)"",
                     ""groups"": ""Gamepad"",
                     ""action"": ""Look"",
                     ""isComposite"": false,
@@ -252,8 +222,7 @@ namespace PP.Controls
             // Locomotion
             m_Locomotion = asset.FindActionMap("Locomotion", throwIfNotFound: true);
             m_Locomotion_Jump = m_Locomotion.FindAction("Jump", throwIfNotFound: true);
-            m_Locomotion_Duck = m_Locomotion.FindAction("Duck", throwIfNotFound: true);
-            m_Locomotion_Walk = m_Locomotion.FindAction("Walk", throwIfNotFound: true);
+            m_Locomotion_Sneak = m_Locomotion.FindAction("Sneak", throwIfNotFound: true);
             m_Locomotion_Move = m_Locomotion.FindAction("Move", throwIfNotFound: true);
             m_Locomotion_Look = m_Locomotion.FindAction("Look", throwIfNotFound: true);
         }
@@ -306,8 +275,7 @@ namespace PP.Controls
         private readonly InputActionMap m_Locomotion;
         private ILocomotionActions m_LocomotionActionsCallbackInterface;
         private readonly InputAction m_Locomotion_Jump;
-        private readonly InputAction m_Locomotion_Duck;
-        private readonly InputAction m_Locomotion_Walk;
+        private readonly InputAction m_Locomotion_Sneak;
         private readonly InputAction m_Locomotion_Move;
         private readonly InputAction m_Locomotion_Look;
         public struct LocomotionActions
@@ -315,8 +283,7 @@ namespace PP.Controls
             private @Player m_Wrapper;
             public LocomotionActions(@Player wrapper) { m_Wrapper = wrapper; }
             public InputAction @Jump => m_Wrapper.m_Locomotion_Jump;
-            public InputAction @Duck => m_Wrapper.m_Locomotion_Duck;
-            public InputAction @Walk => m_Wrapper.m_Locomotion_Walk;
+            public InputAction @Sneak => m_Wrapper.m_Locomotion_Sneak;
             public InputAction @Move => m_Wrapper.m_Locomotion_Move;
             public InputAction @Look => m_Wrapper.m_Locomotion_Look;
             public InputActionMap Get() { return m_Wrapper.m_Locomotion; }
@@ -331,12 +298,9 @@ namespace PP.Controls
                     @Jump.started -= m_Wrapper.m_LocomotionActionsCallbackInterface.OnJump;
                     @Jump.performed -= m_Wrapper.m_LocomotionActionsCallbackInterface.OnJump;
                     @Jump.canceled -= m_Wrapper.m_LocomotionActionsCallbackInterface.OnJump;
-                    @Duck.started -= m_Wrapper.m_LocomotionActionsCallbackInterface.OnDuck;
-                    @Duck.performed -= m_Wrapper.m_LocomotionActionsCallbackInterface.OnDuck;
-                    @Duck.canceled -= m_Wrapper.m_LocomotionActionsCallbackInterface.OnDuck;
-                    @Walk.started -= m_Wrapper.m_LocomotionActionsCallbackInterface.OnWalk;
-                    @Walk.performed -= m_Wrapper.m_LocomotionActionsCallbackInterface.OnWalk;
-                    @Walk.canceled -= m_Wrapper.m_LocomotionActionsCallbackInterface.OnWalk;
+                    @Sneak.started -= m_Wrapper.m_LocomotionActionsCallbackInterface.OnSneak;
+                    @Sneak.performed -= m_Wrapper.m_LocomotionActionsCallbackInterface.OnSneak;
+                    @Sneak.canceled -= m_Wrapper.m_LocomotionActionsCallbackInterface.OnSneak;
                     @Move.started -= m_Wrapper.m_LocomotionActionsCallbackInterface.OnMove;
                     @Move.performed -= m_Wrapper.m_LocomotionActionsCallbackInterface.OnMove;
                     @Move.canceled -= m_Wrapper.m_LocomotionActionsCallbackInterface.OnMove;
@@ -350,12 +314,9 @@ namespace PP.Controls
                     @Jump.started += instance.OnJump;
                     @Jump.performed += instance.OnJump;
                     @Jump.canceled += instance.OnJump;
-                    @Duck.started += instance.OnDuck;
-                    @Duck.performed += instance.OnDuck;
-                    @Duck.canceled += instance.OnDuck;
-                    @Walk.started += instance.OnWalk;
-                    @Walk.performed += instance.OnWalk;
-                    @Walk.canceled += instance.OnWalk;
+                    @Sneak.started += instance.OnSneak;
+                    @Sneak.performed += instance.OnSneak;
+                    @Sneak.canceled += instance.OnSneak;
                     @Move.started += instance.OnMove;
                     @Move.performed += instance.OnMove;
                     @Move.canceled += instance.OnMove;
@@ -387,8 +348,7 @@ namespace PP.Controls
         public interface ILocomotionActions
         {
             void OnJump(InputAction.CallbackContext context);
-            void OnDuck(InputAction.CallbackContext context);
-            void OnWalk(InputAction.CallbackContext context);
+            void OnSneak(InputAction.CallbackContext context);
             void OnMove(InputAction.CallbackContext context);
             void OnLook(InputAction.CallbackContext context);
         }

@@ -123,9 +123,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 56288095317812099}
+  - component: {fileID: 1194558473}
   - component: {fileID: 1793469709227441277}
   - component: {fileID: 1194558472}
-  - component: {fileID: 1194558473}
+  - component: {fileID: 1130227454}
   - component: {fileID: 1467819504725821868}
   m_Layer: 0
   m_Name: Player
@@ -150,6 +151,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1194558473
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5725270494429731329}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 633ffda5435bfebf382469999b9a3b43, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!143 &1793469709227441277
 CharacterController:
   m_ObjectHideFlags: 0
@@ -180,16 +193,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4cacb8dd80615411a0898ed10faf6a0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  head: {fileID: 2092722828}
-  animator: {fileID: 5866666021355134783}
-  sneakSpeed: 0.75
-  walkSpeed: 3.5
-  runSpeed: 5
-  fallMoveSpeed: 0.02
-  jumpFudgeTime: 0.16
-  jumpImpulse: 0.09
-  gravity: 0.3
---- !u!114 &1194558473
+  Animator: {fileID: 5866666021355134783}
+  SpeedScale: 1
+  AccelerationScale: 1
+  jumpFudge: 0.125
+  jumpImpulse: 4
+  MoveSpeed: 5
+  SneakSpeed: 1.25
+  Acceleration: 18
+  Velocity: {x: 0, y: 0, z: 0}
+  OnGround: 0
+--- !u!114 &1130227454
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -198,9 +212,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 5725270494429731329}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 633ffda5435bfebf382469999b9a3b43, type: 3}
+  m_Script: {fileID: 11500000, guid: 51351587c2a43c90a8e27a48001487fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  head: {fileID: 2092722828}
+  Animator: {fileID: 5866666021355134783}
 --- !u!114 &1467819504725821868
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -263,22 +279,6 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1194558472}
         m_TargetAssemblyTypeName: PP.Entities.Player.Locomotion, Assembly-CSharp
-        m_MethodName: OnWalk
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-    m_ActionId: 6eef71e6-e687-4b68-bf7b-999d6f4e0442
-    m_ActionName: Locomotion/Walk[/Keyboard/leftShift,/Gamepad/buttonNorth]
-  - m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1194558472}
-        m_TargetAssemblyTypeName: PP.Entities.Player.Locomotion, Assembly-CSharp
         m_MethodName: OnMove
         m_Mode: 0
         m_Arguments:
@@ -293,8 +293,8 @@ MonoBehaviour:
     m_ActionName: Locomotion/Move[/Keyboard/w,/Keyboard/s,/Keyboard/a,/Keyboard/d,/Gamepad/leftStick]
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1194558472}
-        m_TargetAssemblyTypeName: PP.Entities.Player.Locomotion, Assembly-CSharp
+      - m_Target: {fileID: 1130227454}
+        m_TargetAssemblyTypeName: PP.Entities.Player.Look, Assembly-CSharp
         m_MethodName: OnLook
         m_Mode: 0
         m_Arguments:

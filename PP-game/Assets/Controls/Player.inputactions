@@ -14,17 +14,9 @@
                     "interactions": ""
                 },
                 {
-                    "name": "Duck",
+                    "name": "Sneak",
                     "type": "Button",
                     "id": "f857c668-384c-4e6b-bc96-d2b89774e6dd",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": ""
-                },
-                {
-                    "name": "Walk",
-                    "type": "Button",
-                    "id": "6eef71e6-e687-4b68-bf7b-999d6f4e0442",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": ""
@@ -33,8 +25,8 @@
                     "name": "Move",
                     "type": "Value",
                     "id": "d7ae8e79-c36b-451b-8d47-70f0f9d2e29f",
-                    "expectedControlType": "Vector2",
-                    "processors": "",
+                    "expectedControlType": "Dpad",
+                    "processors": "NormalizeVector2",
                     "interactions": ""
                 },
                 {
@@ -72,44 +64,22 @@
                 {
                     "name": "",
                     "id": "3ddc876c-3964-429b-bae0-74c25a4b9eb3",
-                    "path": "<Keyboard>/leftCtrl",
+                    "path": "<Keyboard>/shift",
                     "interactions": "",
                     "processors": "",
                     "groups": "Computer",
-                    "action": "Duck",
+                    "action": "Sneak",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
                     "id": "774ceffd-1296-49d5-8e62-4667b3a4fbb7",
-                    "path": "<Gamepad>/dpad/up",
+                    "path": "<Gamepad>/leftStickPress",
                     "interactions": "",
                     "processors": "",
                     "groups": "Gamepad",
-                    "action": "Duck",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "0a50a7b8-6a1f-4830-b651-075598c4195d",
-                    "path": "<Keyboard>/leftShift",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Computer",
-                    "action": "Walk",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "b61f9b85-1f86-4179-87fe-cffbc386d35f",
-                    "path": "<Gamepad>/buttonNorth",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Gamepad",
-                    "action": "Walk",
+                    "action": "Sneak",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -173,7 +143,7 @@
                     "id": "ea6ba949-5ba3-4ff4-88f3-635f62ec1bf7",
                     "path": "<Gamepad>/leftStick",
                     "interactions": "",
-                    "processors": "",
+                    "processors": "StickDeadzone(min=0.35)",
                     "groups": "Gamepad",
                     "action": "Move",
                     "isComposite": false,
@@ -195,7 +165,7 @@
                     "id": "aba6a999-7039-4787-9bf1-891ff71b0c71",
                     "path": "<Gamepad>/rightStick",
                     "interactions": "",
-                    "processors": "ScaleVector2(x=4,y=4)",
+                    "processors": "StickDeadzone,ScaleVector2(x=7,y=7)",
                     "groups": "Gamepad",
                     "action": "Look",
                     "isComposite": false,
