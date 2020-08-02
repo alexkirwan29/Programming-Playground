@@ -2,7 +2,6 @@
 using UnityEditor;
 using UnityEngine;
 
-[System.Serializable]
 public class JSONEntry {
     public int id;
     public string path;
@@ -29,18 +28,44 @@ public static class JSONManager {
     public static List<JSONEntry> LoadData() {
         List<JSONEntry> JSON_Entries = new List<JSONEntry>();
 
-        foreach(string i in System.IO.File.ReadLines(JSONDir)) {
-            if ((i != "[\n") && (i != "]/n") && (i != "]")) {
-                Debug.Log(i);
+        bool readingData = false;
+        JSONEntry currentEntry = new JSONEntry();
+        foreach (string i in System.IO.File.ReadLines(JSONDir)) {
+            if ((!readingData) && i.Contains("{")) { readingData = true; }
+            else if (readingData && i.Contains("}")) { readingData = false; }
+
+            if (readingData) {
+                if (i.ToLower().Contains("\"id\":")) {
+                    Debug.Log("id: " + i);
+                    string temp = i.Substring(i.IndexOf(":") + 1, i.Length - i.IndexOf(":") - 2);
+                    currentEntry.id = int.Parse(temp);
+                }
+
+                if (i.ToLower().Contains("\"path\":")) {
+                    Debug.Log("path: " + i);
+                    int startingIndex = i.IndexOf("\"", i.IndexOf(":")) + 1;
+                    int finishedIndex = i.LastIndexOf("\"") - startingIndex;
+                    currentEntry.path = i.Substring(startingIndex, finishedIndex);
+                }
+
+                if (i.ToLower().Contains("\"name\":")) {
+                    Debug.Log("name: " + i);
+                    int startingIndex = i.IndexOf("\"", i.IndexOf(":")) + 1;
+                    int finishedIndex = i.LastIndexOf("\"") - startingIndex;
+                    currentEntry.name = i.Substring(startingIndex, finishedIndex);
+                }
+            } else {
+                if (currentEntry.name != null) { JSON_Entries.Add(currentEntry); }
+                currentEntry = new JSONEntry();
             }
         }
-
+        
         return JSON_Entries;
     }
 }
 
 public class JSONEditor : EditorWindow {
-    List<JSONEntry> JSON_Entries;
+    static List<JSONEntry> JSON_Entries;
     int page = 0;
 
     [MenuItem("Window/Custom Windows/JSON Editor")]
@@ -48,6 +73,11 @@ public class JSONEditor : EditorWindow {
         JSONEditor window = (JSONEditor)GetWindow(typeof(JSONEditor));
         window.Show();
 
+        JSONEditor temp = new JSONEditor();
+        temp.Start();
+    }
+
+    void Start() {
         JSON_Entries = JSONManager.LoadData();
     }
 
