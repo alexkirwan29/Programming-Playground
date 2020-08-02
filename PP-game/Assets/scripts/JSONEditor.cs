@@ -10,7 +10,7 @@ public class JSONEntry {
 }
 
 public static class JSONManager {
-    static readonly string JSONDir = "Assets/Objects/Entities/";
+    static readonly string JSONDir = "Assets/Objects/Entities/net-prefab-list.json";
 
     public static void SaveData(List<JSONEntry> Entries) {
         string result = "[";
@@ -25,16 +25,30 @@ public static class JSONManager {
         System.IO.File.WriteAllText(JSONDir, result.Substring(0, result.Length - 1) + "\n]");
         //Debug.Log(result.Substring(0, result.Length - 1) + "\n]");
     }
+
+    public static List<JSONEntry> LoadData() {
+        List<JSONEntry> JSON_Entries = new List<JSONEntry>();
+
+        foreach(string i in System.IO.File.ReadLines(JSONDir)) {
+            if ((i != "[\n") && (i != "]/n") && (i != "]")) {
+                Debug.Log(i);
+            }
+        }
+
+        return JSON_Entries;
+    }
 }
 
 public class JSONEditor : EditorWindow {
-    List<JSONEntry> JSON_Entries = new List<JSONEntry>();
+    List<JSONEntry> JSON_Entries;
     int page = 0;
 
     [MenuItem("Window/Custom Windows/JSON Editor")]
     static void Init() {
         JSONEditor window = (JSONEditor)GetWindow(typeof(JSONEditor));
         window.Show();
+
+        JSON_Entries = JSONManager.LoadData();
     }
 
     void OnGUI() {
