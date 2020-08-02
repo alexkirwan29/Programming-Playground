@@ -5,13 +5,19 @@ using UnityEngine;
 using LiteNetLib;
 using LiteNetLib.Utils;
 using PP.Networking;
+using PP.Networking.Utils;
 using System.Net;
 using System.Net.Sockets;
 
 namespace PP.Networking
 {
-  public abstract class GameNetworker : MonoBehaviour
+  public abstract class Networker : MonoBehaviour
   {
+    public static bool IsServer;
+    public static bool IsClient;
+    public static Server.GameServer Server;
+    public static Client.GameClient Client;
+
     public bool IsRunning
     {
       get
@@ -39,6 +45,8 @@ namespace PP.Networking
       DontDestroyOnLoad(gameObject);
 
       packetProcessor = new NetPacketProcessor();
+      packetProcessor.RegisterNestedType<Vector3>(Vector3Writer.Serialise, Vector3Writer.Deserialise);
+      packetProcessor.RegisterNestedType<Quaternion>(QuaternionWriter.Serialise, QuaternionWriter.Deserialise);
       cachedWriter = new NetDataWriter();
 
       HasInit = true;

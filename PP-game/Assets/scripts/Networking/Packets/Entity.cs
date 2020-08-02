@@ -35,7 +35,7 @@ namespace PP.Networking.Packets
     {
       Id = reader.GetUShort();
       MoveInput = (MovementInput)reader.GetByte();
-      Helpers.Vector3Squash.UnSquash(ref LookNormal, ref reader);
+      LookNormal = Utils.Vector3Writer.Deserialise(reader);
       ServerTick = reader.GetUShort();
     }
 
@@ -43,7 +43,7 @@ namespace PP.Networking.Packets
     {
       writer.Put(Id);
       writer.Put((byte)MoveInput);
-      Helpers.Vector3Squash.Squash(ref LookNormal, ref writer);
+      Utils.Vector3Writer.Serialise(writer, LookNormal);
       writer.Put(ServerTick);
     }
   }

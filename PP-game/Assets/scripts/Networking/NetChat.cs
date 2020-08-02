@@ -29,11 +29,11 @@ namespace PP.Networking {
     public static Action<string> OnMessageReceived;
 
     private static bool isServer;
-    private static GameNetworker controller;
+    private static Networker controller;
 
 
 
-    public static void Initialise(GameNetworker controller) {
+    public static void Initialise(Networker controller) {
       // Subscribe to the ChatMessage packet.
       controller.packetProcessor.SubscribeReusable<Packets.ChatMessage>(MessageReceived);
 

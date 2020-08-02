@@ -10,21 +10,30 @@ using System.Net.Sockets;
 
 namespace PP.Networking.Client
 {
-  public class GameClient : GameNetworker, INetEventListener
+  public class GameClient : Networker, INetEventListener
   {
     internal override void Create()
     {
+      if(Client != null)
+        throw new System.Exception("Only one client can be running");
+
       netMan = new NetManager(this)
       {
         AutoRecycle = true,
       };
 
       netMan.Start();
+
+      IsClient = true;
+      Client = this;
     }
     internal override void Destroy()
     {
       if(netMan != null && netMan.IsRunning)
         netMan.Stop(true);
+
+      IsClient = false;
+      Client = null;
     }
 
     public void OnConnectionRequest(ConnectionRequest request)
