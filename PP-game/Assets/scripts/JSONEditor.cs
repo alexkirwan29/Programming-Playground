@@ -36,20 +36,17 @@ public static class JSONManager {
 
             if (readingData) {
                 if (i.ToLower().Contains("\"id\":")) {
-                    Debug.Log("id: " + i);
                     string temp = i.Substring(i.IndexOf(":") + 1, i.Length - i.IndexOf(":") - 2);
                     currentEntry.id = int.Parse(temp);
                 }
 
                 if (i.ToLower().Contains("\"path\":")) {
-                    Debug.Log("path: " + i);
                     int startingIndex = i.IndexOf("\"", i.IndexOf(":")) + 1;
                     int finishedIndex = i.LastIndexOf("\"") - startingIndex;
                     currentEntry.path = i.Substring(startingIndex, finishedIndex);
                 }
 
                 if (i.ToLower().Contains("\"name\":")) {
-                    Debug.Log("name: " + i);
                     int startingIndex = i.IndexOf("\"", i.IndexOf(":")) + 1;
                     int finishedIndex = i.LastIndexOf("\"") - startingIndex;
                     currentEntry.name = i.Substring(startingIndex, finishedIndex);
