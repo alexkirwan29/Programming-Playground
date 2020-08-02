@@ -185,10 +185,10 @@ MonoBehaviour:
   sneakSpeed: 0.75
   walkSpeed: 3.5
   runSpeed: 5
-  fallMoveSpeed: 1
+  fallMoveSpeed: 0.02
   jumpFudgeTime: 0.16
-  jumpImpulse: 1.7
-  gravity: 0.7
+  jumpImpulse: 0.09
+  gravity: 0.3
 --- !u!114 &1194558473
 MonoBehaviour:
   m_ObjectHideFlags: 0
