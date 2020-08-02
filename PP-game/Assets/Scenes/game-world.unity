@@ -97,7 +97,7 @@ LightmapSettings:
     m_ExportTrainingData: 0
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
-  m_LightingDataAsset: {fileID: 112000000, guid: 848c2fe883ecb795491602a15e899c6e,
+  m_LightingDataAsset: {fileID: 112000000, guid: 2ca2be7d44a5a1dd1aed8b30f6128a4b,
     type: 2}
   m_LightingSettings: {fileID: 0}
 --- !u!196 &4
@@ -1079,14 +1079,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1194558472, guid: b9812ea1f14170cbfa01a194d4202f3b, type: 3}
-      propertyPath: gravity
-      value: 0.7
-      objectReference: {fileID: 0}
-    - target: {fileID: 1194558472, guid: b9812ea1f14170cbfa01a194d4202f3b, type: 3}
-      propertyPath: jumpImpulse
-      value: 0.3
-      objectReference: {fileID: 0}
     - target: {fileID: 56288095317812099, guid: b9812ea1f14170cbfa01a194d4202f3b,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -1146,11 +1138,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Player
-      objectReference: {fileID: 0}
-    - target: {fileID: 6379462666324615756, guid: b9812ea1f14170cbfa01a194d4202f3b,
-        type: 3}
-      propertyPath: m_CastShadows
-      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b9812ea1f14170cbfa01a194d4202f3b, type: 3}
