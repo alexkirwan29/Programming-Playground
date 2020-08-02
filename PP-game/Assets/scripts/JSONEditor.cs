@@ -9,7 +9,7 @@ public class JSONEntry {
 }
 
 public static class JSONManager {
-    static readonly string JSONDir = "Assets/Objects/Entities/net-prefab-list.json";
+    static string JSONDir = "Assets/Objects/Entities/net-prefab-list.json";
 
     public static void SaveData(List<JSONEntry> Entries) {
         string result = "[";
@@ -76,6 +76,9 @@ public class JSONEditor : EditorWindow {
 
     void Start() {
         JSON_Entries = JSONManager.LoadData();
+        if (JSON_Entries == null) {
+            JSON_Entries = new List<JSONEntry>();
+        }
     }
 
     void OnGUI() {
