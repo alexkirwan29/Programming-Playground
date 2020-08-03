@@ -25,7 +25,7 @@ public class ServerBuild {
   // [MenuItem("Server/Stop")]
   public static void Stop()
   {
-    if(serverProcess != null)
+    if(serverProcess != null && !serverProcess.HasExited)
     {
       serverProcess.Close();
 

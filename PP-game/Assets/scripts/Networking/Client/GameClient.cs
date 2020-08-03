@@ -9,17 +9,13 @@ using System.Net;
 using System.Net.Sockets;
 
 namespace PP.Networking.Client {
-  public class GameClient : Networker, INetEventListener {
+  public class GameClient : Networker {
 
     public override void Init() {
       if (Client != null)
         throw new System.Exception("Only one client can be running");
       
       base.Init();
-
-      Net = new NetManager(this) {
-        AutoRecycle = true,
-      };
 
       Net.Start();
 
@@ -35,36 +31,7 @@ namespace PP.Networking.Client {
       Client = null;
     }
 
-    public void OnConnectionRequest(ConnectionRequest request) {
-      throw new System.NotImplementedException();
-    }
-
-    public void OnNetworkError(IPEndPoint endPoint, SocketError socketError) {
-      Debug.LogError($"Network Error: {socketError}", this);
-    }
-
-    public void OnNetworkLatencyUpdate(NetPeer peer, int latency) {
-      // TODO: Show this to the end user somehow.
-    }
-
-    public void OnNetworkReceive(NetPeer peer, NetPacketReader reader, DeliveryMethod deliveryMethod) {
-      // Read the packets using the packet processor.
-      PacketProcessor.ReadAllPackets(reader);
-    }
-
-    public void OnNetworkReceiveUnconnected(IPEndPoint remoteEndPoint, NetPacketReader reader, UnconnectedMessageType messageType) {
-      throw new System.NotImplementedException();
-    }
-
-    public void OnPeerConnected(NetPeer peer) {
-      Debug.Log("you have joined the game");
-    }
-
-    public void OnPeerDisconnected(NetPeer peer, DisconnectInfo disconnectInfo) {
-      Debug.Log("you have been disconnected from the game");
-    }
-
-    public void Connect(string connectionString) {
+    public void Connect(string connectionString, JoinRequest request) {
       // Complain if the string is empty.
       if (string.IsNullOrWhiteSpace(connectionString))
         throw new System.NullReferenceException("Connection string is null or empty.");
@@ -84,7 +51,7 @@ namespace PP.Networking.Client {
         // Try and parse the port.
         if (ushort.TryParse(parts[1], out ushort parsedPort)) {
           // Cool let's attempt to connect to it.
-          Connect(host, parsedPort);
+          Connect(host, parsedPort, request);
         }
 
         // Something went wrong there.
@@ -95,13 +62,19 @@ namespace PP.Networking.Client {
       // TODO: Look up DNS SRV records of the domain name and use that as the port.
 
       // Ahhh let's try it anyways with the default port. See what happens.
-      Connect(host, 27015);
+      Connect(host, 27015, request);
 
     }
 
-    public void Connect(string host, ushort port) {
+    public void Connect(string host, ushort port, JoinRequest request) {
       Debug.Log($"Attempting connection to {host} on port {port}.");
-      Net.Connect(host, port, "hello");
+
+      // Create our request packet.
+      var writer = GetWriter();
+      serializer.Serialize(writer, request);
+
+      // Request to join.
+      Net.Connect(host, port, writer);
     }
   }
 }
