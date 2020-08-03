@@ -53,6 +53,7 @@ namespace PP.Networking {
         // Create the packet and send it it all peers.
         var packet = new Packets.ChatMessage(message);
         controller.netMan.SendToAll(controller.WritePacket(packet), DeliveryMethod.ReliableOrdered);
+        Debug.Log(message);
       } else {
         Debug.LogError($"{typeof(NetChat).FullName} isn't ready to send chat messages.");
       }
@@ -71,7 +72,6 @@ namespace PP.Networking {
           OnFilterMessage.Invoke(args);
 
         if (!args.StopMessage) {
-          Debug.Log(args.Message);
           SendMessage(args.Message);
         }
       }

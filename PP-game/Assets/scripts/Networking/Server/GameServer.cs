@@ -12,7 +12,7 @@ namespace PP.Networking.Server {
   public class GameServer : Networker, INetEventListener {
     public ServerSettings settings;
 
-    internal override void Create() {
+    public override void Create() {
       if (Server != null)
         throw new System.Exception("Only one server can at a time");
 
@@ -65,11 +65,18 @@ namespace PP.Networking.Server {
 
     public void OnPeerConnected(NetPeer peer) {
       NetChat.SendMessage($"Player joined the game");
+      GetComponent<EntityController>().SpawnEntity(100, Vector3.zero);
     }
 
     public void OnPeerDisconnected(NetPeer peer, DisconnectInfo disconnectInfo) {
       NetChat.SendMessage($"Player lost connection. Reason: {disconnectInfo.Reason}");
-      throw new System.NotImplementedException();
+    }
+
+    public void SendToAll<T>(T packet, DeliveryMethod options) where T: INetSerializable
+    {
+      cachedWriter.Reset();
+      packet.Serialize(cachedWriter);
+      netMan.SendToAll(cachedWriter, options);
     }
   }
 }

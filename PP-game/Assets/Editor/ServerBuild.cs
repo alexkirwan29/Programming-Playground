@@ -13,7 +13,7 @@ public class ServerBuild {
     Build();
     Run();
   }
-  // [MenuItem("Server/Run")]
+  [MenuItem("Server/Run")]
   public static void Run()
   {
     Stop();

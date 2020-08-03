@@ -9,80 +9,67 @@ using PP.Networking.Utils;
 using System.Net;
 using System.Net.Sockets;
 
-namespace PP.Networking
-{
-  public abstract class Networker : MonoBehaviour
-  {
+namespace PP.Networking {
+  public abstract class Networker : MonoBehaviour {
     public static bool IsServer;
     public static bool IsClient;
     public static Server.GameServer Server;
     public static Client.GameClient Client;
 
-    public bool IsRunning
-    {
-      get
-      {
+    public bool IsRunning {
+      get {
         return netMan.IsRunning;
       }
     }
-    
-    internal NetManager netMan;
+
+    public NetManager netMan;
     internal NetDataWriter cachedWriter;
 
     private bool HasInit = false;
 
     public NetPacketProcessor packetProcessor;
 
-    internal abstract void Create();
+    public abstract void Create();
     internal abstract void Destroy();
 
-    internal virtual void DoUpdate(float dTime)
-    {
+    internal virtual void DoUpdate(float dTime) {
 
     }
-    public virtual void StartNetworker()
-    {
+  
+    public virtual void Init() {
       DontDestroyOnLoad(gameObject);
 
+      cachedWriter = new NetDataWriter();
       packetProcessor = new NetPacketProcessor();
       packetProcessor.RegisterNestedType<Vector3>(Vector3Writer.Serialise, Vector3Writer.Deserialise);
       packetProcessor.RegisterNestedType<Quaternion>(QuaternionWriter.Serialise, QuaternionWriter.Deserialise);
-      cachedWriter = new NetDataWriter();
 
       HasInit = true;
-
-      Create();
-
       NetChat.Initialise(this);
     }
 
-    private void Update()
-    {
-      if(HasInit)
+    private void Update() {
+      if (HasInit)
         DoUpdate(Time.deltaTime);
 
-      if(netMan != null && netMan.IsRunning)
+      if (netMan != null && netMan.IsRunning)
         netMan.PollEvents();
     }
 
-    private void OnDestroy()
-    {
-      if(HasInit)
-      {
+    private void OnDestroy() {
+      if (HasInit) {
         NetChat.DeInitialise();
       }
 
       Destroy();
     }
 
-    internal virtual NetDataWriter WriteSerialisable<T>(T packet) where T: struct, INetSerializable
-    {
+    internal virtual NetDataWriter WriteSerialisable<T>(T packet) where T : struct, INetSerializable {
       cachedWriter.Reset();
       packet.Serialize(cachedWriter);
       return cachedWriter;
     }
-    internal virtual NetDataWriter WritePacket<T>(T packet) where T : class, new()
-    {
+    internal virtual NetDataWriter WritePacket<T>(T packet) where T : class, new() {
       cachedWriter.Reset();
       packetProcessor.Write(cachedWriter, packet);
       return cachedWriter;

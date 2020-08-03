@@ -52,6 +52,8 @@ namespace PP.Utils {
 
       Console.CancelKeyPress += CancelPress;
 
+      Console.Clear();
+
       Debug.Log("Console Started", this);
     }
 
