@@ -10,22 +10,26 @@ using System.Net.Sockets;
 
 namespace PP.Networking.Client {
   public class GameClient : Networker, INetEventListener {
-    public override void Create() {
+
+    public override void Init() {
       if (Client != null)
         throw new System.Exception("Only one client can be running");
+      
+      base.Init();
 
-      netMan = new NetManager(this) {
+      Net = new NetManager(this) {
         AutoRecycle = true,
       };
 
-      netMan.Start();
+      Net.Start();
 
       IsClient = true;
       Client = this;
     }
+
     internal override void Destroy() {
-      if (netMan != null && netMan.IsRunning)
-        netMan.Stop(true);
+      if (Net != null && Net.IsRunning)
+        Net.Stop(true);
 
       IsClient = false;
       Client = null;
@@ -45,7 +49,7 @@ namespace PP.Networking.Client {
 
     public void OnNetworkReceive(NetPeer peer, NetPacketReader reader, DeliveryMethod deliveryMethod) {
       // Read the packets using the packet processor.
-      packetProcessor.ReadAllPackets(reader);
+      PacketProcessor.ReadAllPackets(reader);
     }
 
     public void OnNetworkReceiveUnconnected(IPEndPoint remoteEndPoint, NetPacketReader reader, UnconnectedMessageType messageType) {
@@ -97,7 +101,7 @@ namespace PP.Networking.Client {
 
     public void Connect(string host, ushort port) {
       Debug.Log($"Attempting connection to {host} on port {port}.");
-      netMan.Connect(host, port, "hello");
+      Net.Connect(host, port, "hello");
     }
   }
 }

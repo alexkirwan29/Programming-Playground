@@ -16,52 +16,51 @@ namespace PP.Networking {
     public static Server.GameServer Server;
     public static Client.GameClient Client;
 
-    public bool IsRunning {
+    public bool Running {
       get {
-        return netMan.IsRunning;
+        return Net != null && Net.IsRunning;
       }
     }
 
-    public NetManager netMan;
+    public NetManager Net;
     internal NetDataWriter cachedWriter;
+    public NetPacketProcessor PacketProcessor;
+    [HideInInspector] public ChatController Chat;
+    [HideInInspector] public EntityController Entities;
 
-    private bool HasInit = false;
-
-    public NetPacketProcessor packetProcessor;
-
-    public abstract void Create();
-    internal abstract void Destroy();
-
-    internal virtual void DoUpdate(float dTime) {
-
-    }
-  
     public virtual void Init() {
       DontDestroyOnLoad(gameObject);
 
       cachedWriter = new NetDataWriter();
-      packetProcessor = new NetPacketProcessor();
-      packetProcessor.RegisterNestedType<Vector3>(Vector3Writer.Serialise, Vector3Writer.Deserialise);
-      packetProcessor.RegisterNestedType<Quaternion>(QuaternionWriter.Serialise, QuaternionWriter.Deserialise);
+      PacketProcessor = new NetPacketProcessor();
+      PacketProcessor.RegisterNestedType<Vector3>(Vector3Writer.Serialise, Vector3Writer.Deserialise);
+      PacketProcessor.RegisterNestedType<Quaternion>(QuaternionWriter.Serialise, QuaternionWriter.Deserialise);
 
-      HasInit = true;
-      NetChat.Initialise(this);
+      Chat = GetComponentInChildren<ChatController>(false);
+      Chat.Init(this);
+
+      Entities = GetComponentInChildren<EntityController>(false);
+      Entities.Init(this);
     }
+
+    internal virtual void Tick(float deltaTime) { }
 
     private void Update() {
-      if (HasInit)
-        DoUpdate(Time.deltaTime);
-
-      if (netMan != null && netMan.IsRunning)
-        netMan.PollEvents();
+      if (Net != null && Net.IsRunning) {
+        Net.PollEvents();
+        Tick(Time.deltaTime);
+      }
     }
 
+    internal abstract void Destroy();
     private void OnDestroy() {
-      if (HasInit) {
-        NetChat.DeInitialise();
-      }
-
       Destroy();
+
+      if(Chat != null)
+        Chat.Shutdown();
+
+      if(Entities != null)
+        Entities.Shutdown();
     }
 
     internal virtual NetDataWriter WriteSerialisable<T>(T packet) where T : struct, INetSerializable {
@@ -71,8 +70,11 @@ namespace PP.Networking {
     }
     internal virtual NetDataWriter WritePacket<T>(T packet) where T : class, new() {
       cachedWriter.Reset();
-      packetProcessor.Write(cachedWriter, packet);
+      PacketProcessor.Write(cachedWriter, packet);
       return cachedWriter;
     }
+
+    internal void SendToAll(NetDataWriter writer, DeliveryMethod options) => Net.SendToAll(writer, options);
+
   }
 }

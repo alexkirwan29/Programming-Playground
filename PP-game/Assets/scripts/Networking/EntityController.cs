@@ -1,31 +1,46 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 using LiteNetLib;
 using LiteNetLib.Utils;
-using System;
+
+using PP.Networking.Utils;
 
 namespace PP.Networking {
-  public class EntityController : MonoBehaviour {
+  public class EntityController : MonoBehaviour, INetController {
     Dictionary<ushort, NetworkedEntity> entities;
+
+    [SerializeField]
+    private PrefabList prefabList;
     Dictionary<ushort, NetworkedEntity> prefabs;
     ushort idCounter = 0;
 
     Networker networker;
 
-    public void Setup(Networker networker, Dictionary<ushort, NetworkedEntity> prefabs) {
+    public void Init(Networker networker) {
       this.networker = networker;
+
       entities = new Dictionary<ushort, NetworkedEntity>();
-      this.prefabs = prefabs;
-      networker.packetProcessor.SubscribeReusable<Packets.Spawn>(OnSpawn);
-      networker.packetProcessor.SubscribeReusable<Packets.Destroy>(OnDestroyEntity);
+      prefabs = prefabList.GetPrefabs();
+
+      networker.PacketProcessor.SubscribeReusable<Spawn>(OnSpawn);
+      networker.PacketProcessor.SubscribeReusable<Destroy>(OnDestroyEntity);
+
+      Debug.Log("Started", this);
     }
 
-    public void OnSpawn(Packets.Spawn packet) {
+    public void Shutdown() {
+      networker.PacketProcessor.RemoveSubscription<Spawn>();
+      networker.PacketProcessor.RemoveSubscription<Destroy>();
+      Debug.Log("Shutdown", this);
+    }
+
+    public bool Ready => networker != null && networker.Running;
+
+    public void OnSpawn(Spawn packet) {
 
       if (entities.ContainsKey(packet.id)) {
-        Debug.LogWarning($"Entity {packet.id} with prefab already exists, destroying and replacing.");
+        Debug.LogWarning($"Entity {packet.id} already exists, destroying and replacing.");
         DestroyEntity(packet.id, true);
       }
 
@@ -41,7 +56,7 @@ namespace PP.Networking {
       entities.Add(packet.id, entity);
     }
 
-    public void OnDestroyEntity(Packets.Destroy packet) {
+    public void OnDestroyEntity(Destroy packet) {
       if (!Networker.IsClient)
         throw new NotClientException();
 
@@ -53,7 +68,7 @@ namespace PP.Networking {
         throw new NotServerException();
       // Create the spawn packet.
 
-      var packet = new Packets.Spawn(prefab, idCounter++, 0, position);
+      var packet = new Spawn(prefab, idCounter++, 0, position);
 
       // Spawn the prefab on the server.
       OnSpawn(packet);
@@ -72,6 +87,62 @@ namespace PP.Networking {
 
       entities[id].DestroyEntity(silent);
       entities.Remove(id);
+    }
+
+    public class Spawn : INetSerializable {
+      public ushort id;
+      public ushort prefab;
+      public ushort owner;
+      public Vector3 position;
+      public bool simple;
+      public Quaternion rotation = Quaternion.identity;
+      public Vector3 scale = Vector3.one;
+
+      public Spawn() {
+
+      }
+
+      public Spawn(ushort prefab, ushort id, ushort owner, Vector3 position) {
+        this.prefab = prefab;
+        this.id = id;
+        this.owner = owner;
+        this.position = position;
+      }
+
+      public void Deserialize(NetDataReader reader) {
+
+        // Read the useful stuff.
+        prefab = reader.GetUShort();
+        id = reader.GetUShort();
+        owner = reader.GetUShort();
+        position = Vector3Writer.Deserialise(reader);
+
+        // Read the extra cool stuff.
+        if (reader.GetBool()) {
+          rotation = QuaternionWriter.Deserialise(reader);
+          scale = Vector3Writer.Deserialise(reader);
+        }
+      }
+      public void Serialize(NetDataWriter writer) {
+
+        // Write the useful stuff.
+        writer.Put(prefab);
+        writer.Put(id);
+        writer.Put(owner);
+        Vector3Writer.Serialise(writer, position);
+
+        // Write the extra cool stuff.
+        if (rotation != Quaternion.identity || scale != Vector3.one) {
+          QuaternionWriter.Serialise(writer, rotation);
+          Vector3Writer.Serialise(writer, scale);
+        }
+      }
+    }
+    public class Destroy {
+      public ushort id { get; set; }
+      public bool silent { get; set; }
+
+      public Destroy() { }
     }
   }
 }
