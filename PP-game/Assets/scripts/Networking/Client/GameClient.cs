@@ -1,12 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 using LiteNetLib;
 using LiteNetLib.Utils;
 using PP.Networking;
 using System.Net;
 using System.Net.Sockets;
+using System;
 
 namespace PP.Networking.Client {
   public class GameClient : Networker {
@@ -14,14 +16,19 @@ namespace PP.Networking.Client {
     public override void Init() {
       if (Client != null)
         throw new System.Exception("Only one client can be running");
-      
+
       base.Init();
 
       Net.Start();
 
       IsClient = true;
       Client = this;
+      listener.PeerDisconnectedEvent += OnDisconnected;
+      listener.PeerConnectedEvent += OnConnected;
     }
+
+    public UnityEvent<DisconnectReason, string> Disconnected;
+    public UnityEvent Connected;
 
     internal override void Destroy() {
       if (Net != null && Net.IsRunning)
@@ -71,10 +78,29 @@ namespace PP.Networking.Client {
 
       // Create our request packet.
       var writer = GetWriter();
-      serializer.Serialize(writer, request);
+      request.Serialize(writer);
 
       // Request to join.
       Net.Connect(host, port, writer);
+    }
+
+    private void OnDisconnected(NetPeer peer, DisconnectInfo disCon) {
+
+      if (disCon.AdditionalData.TryGetString(out string message)) {
+        Debug.Log($"Disconnected from server Reason: {disCon.Reason}, Message: {message}");
+        if(Disconnected != null)
+          Disconnected.Invoke(disCon.Reason, message);
+      }
+      else {
+        Debug.Log($"Disconnected from server Reason: {disCon.Reason}");
+        if(Disconnected != null)
+          Disconnected.Invoke(disCon.Reason, null);
+      }
+    }
+    private void OnConnected(NetPeer peer) {
+      Debug.Log($"Connected to server at {peer.EndPoint}");
+      if(Connected != null)
+        Connected.Invoke();
     }
   }
 }

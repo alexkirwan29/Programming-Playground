@@ -12,8 +12,7 @@ namespace PP.Networking {
     public bool IsServer;
     public bool IsClient;
 
-    public virtual void Spawn(NetPacketReader extraSpawnData) {
-      extraSpawnData.Clear();
+    public virtual void Spawn() {
     }
 
     public virtual void NetTick(float deltaTime) {

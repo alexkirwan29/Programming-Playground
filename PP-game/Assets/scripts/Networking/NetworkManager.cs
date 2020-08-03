@@ -22,8 +22,7 @@ namespace PP.Networking
       else
       {
         Destroy(Server);
-        Client.Init();        
-        Client.Connect("localhost", new Networking.Client.JoinRequest());
+        Client.Init();
       }
     }
 

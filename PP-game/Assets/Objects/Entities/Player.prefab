@@ -17,7 +17,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &250448915
 Transform:
   m_ObjectHideFlags: 0
@@ -167,6 +167,7 @@ MonoBehaviour:
   OwnerId: 0
   IsServer: 0
   IsClient: 0
+  SkinURL: 
 --- !u!143 &1793469709227441277
 CharacterController:
   m_ObjectHideFlags: 0

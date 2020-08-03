@@ -18,6 +18,7 @@ namespace PP.Networking {
       var writer = net.GetWriter(this);
       writer.Put(message);
       net.SendToAll(writer, DeliveryMethod.ReliableOrdered);
+      Debug.Log(message, this);
     }
 
     public UnityEvent<string> OnMessageReceived;
@@ -27,7 +28,6 @@ namespace PP.Networking {
       if (Networker.IsServer) {
         // TODO: Format the message to show the username of the sender.
         BroadcastChatMessage(message);
-        Debug.Log(message, this);
       }
 
       if (OnMessageReceived != null)

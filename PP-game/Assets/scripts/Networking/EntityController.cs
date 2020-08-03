@@ -83,7 +83,7 @@ namespace PP.Networking {
     /// <param name="owner">The owner of this new entity.</param>
     /// <param name="pos">The position to spawn this new entity at.</param>
     /// <param name="rot">The rotation to spawn this new entity at.</param>
-    public void SpawnEntity(ushort prefabId, ushort owner, Vector3 pos, Quaternion rot) {
+    public NetworkedEntity SpawnEntity(ushort prefabId, ushort owner, Vector3 pos, Quaternion rot) {
       if (!Networker.IsServer)
         throw new NotServerException();
 
@@ -102,6 +102,8 @@ namespace PP.Networking {
 
       // Send the packet to everyone.
       net.SendToAll(writer, DeliveryMethod.ReliableUnordered);
+
+      return entity;
     }
 
 
@@ -134,6 +136,25 @@ namespace PP.Networking {
 
 
 
+    /// <summary>
+    /// Prepare a message to be sent to a particular entity.
+    /// </summary>
+    /// <param name="writer">The NetDataWriter</param>
+    /// <param name="entity"The entity to prepare the message for></param>
+    public void PrepareMessage(NetDataWriter writer, NetworkedEntity entity) => PrepareMessage(writer, entity.Id);
+
+    /// <summary>
+    /// Prepare a message to be sent to a particular entity.
+    /// </summary>
+    /// <param name="writer">The NetDataWriter</param>
+    /// <param name="entity"The entity to prepare the message for></param>
+    public void PrepareMessage(NetDataWriter writer, ushort entity) {
+      writer.Put((byte)EntityCommand.Extra);
+      writer.Put(entity);
+    }
+
+
+
 
     private void SpawnEntity(NetPacketReader reader) {
       // If we are the server leave, we have already done this.
@@ -158,7 +179,7 @@ namespace PP.Networking {
       // Create an instance of this prefab, put it in the list of entities and call spawn.
       var entity = Instantiate(id, prefabId, owner, pos, rot);
       entities.Add(id, entity);
-      entity.Spawn(reader);
+      entity.Spawn();
     }
 
 

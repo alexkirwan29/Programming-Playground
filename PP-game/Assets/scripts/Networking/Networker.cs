@@ -16,6 +16,8 @@ namespace PP.Networking {
     public static Server.GameServer Server;
     public static Client.GameClient Client;
 
+    public const string GAME_VERSION = "0.0.1_rip";
+
     public bool Running {
       get {
         return Net != null && Net.IsRunning;
