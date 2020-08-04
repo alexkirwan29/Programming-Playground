@@ -13,7 +13,7 @@ namespace PP.Networking.Server {
   public class GameServer : Networker {
 
     private ServerSettings settings;
-    public Dictionary<ushort, PlayerEntity> players;
+    public Dictionary<int, PlayerEntity> players;
     private Dictionary<IPEndPoint, JoinRequest> newPlayers;
     public void Init(ServerSettings settings = null) {
       // Don't run if a server already exists.
@@ -29,7 +29,7 @@ namespace PP.Networking.Server {
         settings = new ServerSettings();
       this.settings = settings;
 
-      players = new Dictionary<ushort, PlayerEntity>();
+      players = new Dictionary<int, PlayerEntity>();
       newPlayers = new Dictionary<IPEndPoint, JoinRequest>();
       Net.Start(settings.ListenPort);
 
@@ -74,28 +74,32 @@ namespace PP.Networking.Server {
     }
 
     private void OnPeerConnected(NetPeer peer) {
+
       var data = newPlayers[peer.EndPoint];
       newPlayers.Remove(peer.EndPoint);
 
-      // Remove the data we don't want others to see.
-      data.Password = null;
-      data.GameVersion = null;
+      // Spawn the entity and add it to the list of players.
+      var newPlayer = Entities.SpawnEntity<PlayerEntity>(100, peer.Id, Vector3.zero, Quaternion.identity);
+      players.Add(peer.Id, newPlayer);
 
-      // Spawn the entity.
-      var newPlayer = Entities.SpawnEntity(100, 0, Vector3.zero, Quaternion.identity);
+      // Set the username and SkinUrl of this user.
+      newPlayer.name = data.Username;
+      newPlayer.SkinUrl = data.SkinUrl;
 
-      // Create a packet of additional data for this player. Like Username and Skin.
+      // Send the username and SkinUrl of this user to all the other players.
       var writer = GetWriter(Entities);
       Entities.PrepareMessage(writer, newPlayer);
-      PlayerEntity.Messages.WriteDetails(writer, data.Username, data.SkinUrl);
+      PlayerEntity.Messages.WriteDetails(writer, newPlayer);
       SendToAll(writer, DeliveryMethod.ReliableOrdered);
 
       // Let the world know they've joined.
-      Chat.BroadcastChatMessage($"{data.Username} joined the game.");
+      Chat.BroadcastChatMessage($"{newPlayer.name} joined the game.");
     }
 
     private void OnPeerDisconnected(NetPeer peer, DisconnectInfo disconnectInfo) {
-      Chat.BroadcastChatMessage($"Player lost connection. Reason: {disconnectInfo.Reason}");
+      Entities.DestroyEntity(players[peer.Id].Id);
+      players.Remove(peer.Id);
+      Chat.BroadcastChatMessage($"{players[peer.Id].name} left the game. Reason: {disconnectInfo.Reason}");
     }
   }
 }

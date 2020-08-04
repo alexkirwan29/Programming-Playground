@@ -8,10 +8,11 @@ using LiteNetLib.Utils;
 namespace PP.Networking {
   public class NetworkedEntity : MonoBehaviour {
     public ushort Id;
-    public ushort OwnerId;
-    public bool IsServer;
-    public bool IsClient;
+    public int OwnerId;
 
+    internal virtual void Spawnned() {
+
+    }
     public virtual void NetTick(float deltaTime) {
 
     }

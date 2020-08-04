@@ -17,6 +17,7 @@ namespace PP.Networking {
     public static Client.GameClient Client;
 
     public const string GAME_VERSION = "0.0.1_rip";
+    public const int TPS = 30;
 
     public bool Running {
       get {
@@ -34,6 +35,9 @@ namespace PP.Networking {
 
     [HideInInspector] public ChatController Chat;
     [HideInInspector] public EntityController Entities;
+
+    private float tickStep = 1f / TPS;
+    private float lastTick = 0;
 
     public virtual void Init() {
       DontDestroyOnLoad(gameObject);
@@ -94,18 +98,28 @@ namespace PP.Networking {
         return null;
     }
 
-    internal virtual void Tick(float deltaTime) { }
+    internal virtual void Tick(float deltaTime) {
+      Entities.NetTick(deltaTime);
+    }
 
     private void Update() {
       if (Net != null && Net.IsRunning) {
         Net.PollEvents();
-        Tick(Time.deltaTime);
+
+        float time = Time.timeSinceLevelLoad;
+
+        if(lastTick + tickStep > time) {
+          Tick(time - lastTick);
+          lastTick = time;
+        }
       }
     }
 
     private void OnDestroy() {
       Shutdown();
-      Net.Stop();
+
+      if(Net != null)
+        Net.Stop();
     }
     internal virtual void Shutdown() {
       // Shutdown all controllers and clear the list.
@@ -115,10 +129,8 @@ namespace PP.Networking {
         controllers.Clear();
       }
 
-      // Stop the net manager.
-      if (Net != null) {
+      if (Net != null)
         Net.DisconnectAll();
-      }
     }
 
 

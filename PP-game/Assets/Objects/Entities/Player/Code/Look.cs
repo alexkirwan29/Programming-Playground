@@ -5,9 +5,19 @@ namespace PP.Entities.Player {
 
   public class Look : MonoBehaviour {
     [SerializeField] private Transform head;
+    [SerializeField] private SkinnedMeshRenderer playerMesh;
     [SerializeField] public Animator Animator;
 
     const float HEAD_LIMIT = 89.9f;
+
+    private void OnEnable() {
+      head.gameObject.SetActive(true);
+      playerMesh.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.ShadowsOnly;
+    }
+    private void OnDisable() {
+      head.gameObject.SetActive(false);
+      playerMesh.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
+    }
 
     float headAngle = 0;
     Vector2 lookInput;

@@ -12,10 +12,20 @@ namespace PP.Entities.Player {
     public enum PlayerMessages : byte {
       UserDetails,
     }
-    public string SkinURL;
+    public string SkinUrl;
 
-    private void Awake() {
-
+    internal override void Spawnned() {
+      if(PP.Networking.Client.GameClient.MyID == Id) {
+        if(TryGetComponent<Locomotion>(out var locomotion)) {
+          locomotion.enabled = true;
+        }
+        if(TryGetComponent<Look>(out var look)) {
+          look.enabled = true;
+        }
+      }
+    }
+    public override void NetTick(float deltaTime) {
+      
     }
     public override void Send(LiteNetLib.Utils.NetDataWriter writer) {
 
@@ -29,15 +39,15 @@ namespace PP.Entities.Player {
     }
 
     public static class Messages {
-      public static void WriteDetails(NetDataWriter writer, string username, string skinUrl) {
+      public static void WriteDetails(NetDataWriter writer, PlayerEntity player) {
         writer.Put((byte)PlayerMessages.UserDetails);
 
-        writer.Put(username);
-        writer.Put(skinUrl);
+        writer.Put(player.name);
+        writer.Put(player.SkinUrl);
       }
       public static void ReadDetails(NetDataReader reader, PlayerEntity entity) {
         entity.name = reader.GetString();
-        entity.SkinURL = reader.GetString();
+        entity.SkinUrl = reader.GetString();
       }
     }
   }

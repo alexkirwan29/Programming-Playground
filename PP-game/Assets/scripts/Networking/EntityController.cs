@@ -83,12 +83,12 @@ namespace PP.Networking {
     /// <param name="owner">The owner of this new entity.</param>
     /// <param name="pos">The position to spawn this new entity at.</param>
     /// <param name="rot">The rotation to spawn this new entity at.</param>
-    public NetworkedEntity SpawnEntity(ushort prefabId, ushort owner, Vector3 pos, Quaternion rot) {
+    public T SpawnEntity<T>(ushort prefabId, int owner, Vector3 pos, Quaternion rot) where T : NetworkedEntity {
       if (!Networker.IsServer)
         throw new NotServerException();
 
       // Spawn the prefab on the server.
-      var entity = Instantiate(idCounter++, prefabId, owner, pos, rot);
+      var entity = Instantiate<T>(idCounter++, prefabId, owner, pos, rot);
       entities.Add(entity.Id, entity);
 
       // Construct our packet.
@@ -112,7 +112,7 @@ namespace PP.Networking {
     /// </summary>
     /// <param name="id">The Id of the entity we want to destroy.</param>
     /// <param name="silent">Should the entity "become dissapear" or go out with a bang!</param>
-    private void DestroyEntity(ushort id) {
+    public void DestroyEntity(ushort id) {
       if (!entities.ContainsKey(id))
         Debug.LogWarning($"Entity [{id}] does not exist.", this);
 
@@ -169,31 +169,37 @@ namespace PP.Networking {
       }
 
       // Get the owner, prefabId, position and rotation of this prefab.
-      ushort owner = reader.GetUShort();
+      int owner = reader.GetInt();
       ushort prefabId = reader.GetUShort();
       Vector3 pos = Vector3Writer.Deserialise(reader);
       Quaternion rot = QuaternionWriter.Deserialise(reader);
 
       // Create an instance of this prefab, put it in the list of entities.
-      var entity = Instantiate(id, prefabId, owner, pos, rot);
+      var entity = Instantiate<NetworkedEntity>(id, prefabId, owner, pos, rot);
       entities.Add(id, entity);
     }
 
 
-
-    private NetworkedEntity Instantiate(ushort id, ushort prefabId, ushort owner, Vector3 pos, Quaternion rot) {
+    private T Instantiate<T>(ushort id, ushort prefabId, int owner, Vector3 pos, Quaternion rot) where T : NetworkedEntity {
       Debug.Log("Instantiate " + prefabs.Count);
       if (prefabs.TryGetValue(prefabId, out NetworkedEntity prefab)) {
         // Instantiate the prefab.
         var go = (GameObject)Instantiate(prefab.gameObject, pos, rot);
 
         // Setup some stuff on the entity.
-        var entity = go.GetComponent<NetworkedEntity>();
+        var entity = go.GetComponent<T>();
         entity.Id = id;
         entity.OwnerId = owner;
+        entity.Spawnned();
         return entity;
       }
       return null;
+    }
+
+    internal void NetTick(float deltaTime) {
+      foreach (var entity in entities.Values) {
+        entity.NetTick(deltaTime);
+      }
     }
 
 

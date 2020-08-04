@@ -13,6 +13,14 @@ using System;
 namespace PP.Networking.Client {
   public class GameClient : Networker {
 
+    static public int MyID {
+      get {
+        if(Client == null || !Client.Net.IsRunning)
+          return -1;
+        return Client.Net.FirstPeer.Id;
+      }
+    }
+
     public override void Init() {
       if (Client != null)
         throw new System.Exception("Only one client can be running");
