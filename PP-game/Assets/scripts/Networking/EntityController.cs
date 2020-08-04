@@ -46,7 +46,7 @@ namespace PP.Networking {
 
       // Delete ALL spawnned entities.
       foreach (var id in entities.Keys)
-        DestroyEntity(id, true);
+        DestroyEntity(id);
 
       entities.Clear();
     }
@@ -59,7 +59,7 @@ namespace PP.Networking {
         var command = (EntityCommand)reader.GetByte();
 
         if (command == EntityCommand.Destroy) {
-          DestroyEntity(reader.GetUShort(), reader.GetBool());
+          DestroyEntity(reader.GetUShort());
         }
         else if (command == EntityCommand.Spawn) {
           SpawnEntity(reader);
@@ -101,11 +101,10 @@ namespace PP.Networking {
       QuaternionWriter.Serialise(writer, rot);
 
       // Send the packet to everyone.
-      net.SendToAll(writer, DeliveryMethod.ReliableUnordered);
+      net.SendToAll(writer, DeliveryMethod.ReliableOrdered);
 
       return entity;
     }
-
 
 
     /// <summary>
@@ -113,12 +112,12 @@ namespace PP.Networking {
     /// </summary>
     /// <param name="id">The Id of the entity we want to destroy.</param>
     /// <param name="silent">Should the entity "become dissapear" or go out with a bang!</param>
-    private void DestroyEntity(ushort id, bool silent = false) {
+    private void DestroyEntity(ushort id) {
       if (!entities.ContainsKey(id))
         Debug.LogWarning($"Entity [{id}] does not exist.", this);
 
       // Destroy the entity on the server or client.
-      entities[id].DestroyEntity(silent);
+      Destroy(entities[id].gameObject);
       entities.Remove(id);
 
       // Only send these changes if we are the server.
@@ -127,7 +126,6 @@ namespace PP.Networking {
         var writer = net.GetWriter(this);
         writer.Put((byte)EntityCommand.Destroy);
         writer.Put(id);
-        writer.Put(silent);
 
         // Send the packet to everyone.
         net.SendToAll(writer, DeliveryMethod.ReliableUnordered);
@@ -167,7 +165,7 @@ namespace PP.Networking {
       // If an entity with this ID already exists, destroy it.
       if (entities.ContainsKey(id)) {
         Debug.LogWarning($"Entity {id} already exists, destroying and replacing.", this);
-        DestroyEntity(id, true);
+        DestroyEntity(id);
       }
 
       // Get the owner, prefabId, position and rotation of this prefab.
@@ -176,15 +174,15 @@ namespace PP.Networking {
       Vector3 pos = Vector3Writer.Deserialise(reader);
       Quaternion rot = QuaternionWriter.Deserialise(reader);
 
-      // Create an instance of this prefab, put it in the list of entities and call spawn.
+      // Create an instance of this prefab, put it in the list of entities.
       var entity = Instantiate(id, prefabId, owner, pos, rot);
       entities.Add(id, entity);
-      entity.Spawn();
     }
 
 
 
     private NetworkedEntity Instantiate(ushort id, ushort prefabId, ushort owner, Vector3 pos, Quaternion rot) {
+      Debug.Log("Instantiate " + prefabs.Count);
       if (prefabs.TryGetValue(prefabId, out NetworkedEntity prefab)) {
         // Instantiate the prefab.
         var go = (GameObject)Instantiate(prefab.gameObject, pos, rot);

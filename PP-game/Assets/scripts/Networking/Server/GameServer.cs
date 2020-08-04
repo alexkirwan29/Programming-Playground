@@ -44,7 +44,8 @@ namespace PP.Networking.Server {
       Debug.Log($"Listening on port {Net.LocalPort}", this);
     }
 
-    internal override void Destroy() {
+    internal override void Shutdown() {
+      base.Shutdown();
       IsServer = false;
       Server = null;
     }
@@ -87,6 +88,7 @@ namespace PP.Networking.Server {
       var writer = GetWriter(Entities);
       Entities.PrepareMessage(writer, newPlayer);
       PlayerEntity.Messages.WriteDetails(writer, data.Username, data.SkinUrl);
+      SendToAll(writer, DeliveryMethod.ReliableOrdered);
 
       // Let the world know they've joined.
       Chat.BroadcastChatMessage($"{data.Username} joined the game.");

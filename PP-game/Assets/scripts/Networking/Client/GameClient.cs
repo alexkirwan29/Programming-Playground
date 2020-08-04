@@ -30,9 +30,8 @@ namespace PP.Networking.Client {
     public UnityEvent<DisconnectReason, string> Disconnected;
     public UnityEvent Connected;
 
-    internal override void Destroy() {
-      if (Net != null && Net.IsRunning)
-        Net.Stop(true);
+    internal override void Shutdown() {
+      base.Shutdown();
 
       IsClient = false;
       Client = null;
@@ -84,22 +83,30 @@ namespace PP.Networking.Client {
       Net.Connect(host, port, writer);
     }
 
+    /// <summary>
+    /// Disconnect from any connected server.
+    /// </summary>
+    public void Disconnect() {
+      Net.DisconnectAll();
+    }
+
     private void OnDisconnected(NetPeer peer, DisconnectInfo disCon) {
 
       if (disCon.AdditionalData.TryGetString(out string message)) {
         Debug.Log($"Disconnected from server Reason: {disCon.Reason}, Message: {message}");
-        if(Disconnected != null)
+        if (Disconnected != null)
           Disconnected.Invoke(disCon.Reason, message);
       }
       else {
         Debug.Log($"Disconnected from server Reason: {disCon.Reason}");
-        if(Disconnected != null)
+        if (Disconnected != null)
           Disconnected.Invoke(disCon.Reason, null);
       }
+
     }
     private void OnConnected(NetPeer peer) {
       Debug.Log($"Connected to server at {peer.EndPoint}");
-      if(Connected != null)
+      if (Connected != null)
         Connected.Invoke();
     }
   }

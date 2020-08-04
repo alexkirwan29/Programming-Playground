@@ -40,18 +40,19 @@ namespace PP.Networking {
 
       cachedWriter = new NetDataWriter();
 
+      // Init all NetControllers in children.
       var components = GetComponentsInChildren<NetController>(false);
       controllers = new Dictionary<byte, NetController>();
       foreach (var component in components) {
         controllers.Add(component.GetId(), component);
+        component.Init(this);
       }
 
+      // Get the chat and entities controller and save them, we'll be using them quite a bit.
       Chat = GetController<ChatController>(ChatController.CONTROLLER_ID);
-      Chat.Init(this);
-
       Entities = GetController<EntityController>(EntityController.CONTROLLER_ID);
-      Entities.Init(this);
 
+      // Setup networking events and controllers.
       listener = new EventBasedNetListener();
 
       listener.NetworkReceiveEvent += OnNetworkReceive;
@@ -81,6 +82,11 @@ namespace PP.Networking {
         Debug.LogError("A packet was received without a controller id.", this);
     }
 
+    /// <summary>
+    /// Gets an inited controller used by this networker.
+    /// </summary>
+    /// <param name="id">The id of the controller.</param>
+    /// <returns>A controller ready to go.</returns>
     public T GetController<T>(byte id) where T : NetController {
       if (controllers.TryGetValue(id, out NetController c))
         return (T)c;
@@ -97,15 +103,22 @@ namespace PP.Networking {
       }
     }
 
-    internal abstract void Destroy();
     private void OnDestroy() {
-      Destroy();
+      Shutdown();
+      Net.Stop();
+    }
+    internal virtual void Shutdown() {
+      // Shutdown all controllers and clear the list.
+      if (controllers != null) {
+        foreach (var controller in controllers.Values)
+          controller.Shutdown();
+        controllers.Clear();
+      }
 
-      if (Chat != null)
-        Chat.Shutdown();
-
-      if (Entities != null)
-        Entities.Shutdown();
+      // Stop the net manager.
+      if (Net != null) {
+        Net.DisconnectAll();
+      }
     }
 
 
@@ -122,8 +135,7 @@ namespace PP.Networking {
 
     public void SendToAll(NetDataWriter writer, DeliveryMethod options) => Net.SendToAll(writer, options);
 
-    public void SendToAll<T>(T packet, DeliveryMethod options) where T: INetSerializable
-    {
+    public void SendToAll<T>(T packet, DeliveryMethod options) where T : INetSerializable {
       cachedWriter.Reset();
       packet.Serialize(cachedWriter);
       Net.SendToAll(cachedWriter, options);

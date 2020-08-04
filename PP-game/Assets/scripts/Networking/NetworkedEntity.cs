@@ -12,9 +12,6 @@ namespace PP.Networking {
     public bool IsServer;
     public bool IsClient;
 
-    public virtual void Spawn() {
-    }
-
     public virtual void NetTick(float deltaTime) {
 
     }
@@ -24,10 +21,6 @@ namespace PP.Networking {
     }
     public virtual void Receive(NetDataReader reader) {
 
-    }
-
-    public virtual void DestroyEntity(bool silent) {
-      Destroy(gameObject);
     }
   }
 }

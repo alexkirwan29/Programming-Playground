@@ -17,16 +17,12 @@ namespace PP.Entities.Player {
     private void Awake() {
 
     }
-
-    public override void Spawn() {
-
-    }
-
     public override void Send(LiteNetLib.Utils.NetDataWriter writer) {
 
     }
     public override void Receive(LiteNetLib.Utils.NetDataReader reader) {
       var messageType = (PlayerMessages)reader.GetByte();
+      Debug.Log($"Received a packet of type {messageType}", this);
 
       if (messageType == PlayerMessages.UserDetails) {
         Messages.ReadDetails(reader, this);
