@@ -6,69 +6,57 @@ using System;
 
 public class ServerBuild {
   private static Process serverProcess;
-  [MenuItem("Server/Build And Run")]
-  public static void BuildAndRun()
-  {
-    Stop();
+
+  [MenuItem("Networking/Client/Build And Run")]
+  public static void BuildRunClient() {
+    Stop(false);
     Build();
-    Run();
+    Run(false);
   }
-  [MenuItem("Server/Run")]
-  public static void Run()
-  {
-    Stop();
-
-    serverProcess = new Process();
-    serverProcess.StartInfo = new ProcessStartInfo("gnome-terminal", "-- ./run-server.sh unity-editor");
-    serverProcess.Start();
+  [MenuItem("Networking/Server/Build And Run")]
+  public static void BuildRunServer() {
+    Stop(true);
+    Build();
+    Run(true);
   }
-  // [MenuItem("Server/Stop")]
-  public static void Stop()
-  {
-    if(serverProcess != null && !serverProcess.HasExited)
-    {
-      serverProcess.Close();
-
-      serverProcess.WaitForExit(5);
-
-      if(!serverProcess.HasExited)
-      {
-        UnityEngine.Debug.LogError("Unable to Close server. Killing");
-        serverProcess.Kill();
-      }
-
-      serverProcess.Dispose();
-      serverProcess = null;
-    }
+  [MenuItem("Networking/Client/Stop")]
+  public static void StopClient() {
+    Stop(false);
   }
-  [MenuItem("Server/Build")]
-  public static string Build() {
+  [MenuItem("Networking/Server/Stop")]
+  public static void StopServer() {
+    Stop(true);
+  }
+  [MenuItem("Networking/Client/Start")]
+  public static void StartClient() {
+    Run(false);
+  }
+  [MenuItem("Networking/Server/Restart")]
+  public static void RestartServer() {
+    Stop(true);
+    Run(true);
+  }
+  [MenuItem("Networking/Server/Start")]
+  public static void StartServer() {
+    Run(true);
+  }
+
+  private static void Run(bool server) {
+    if (server)
+      Process.Start("./build-tools.sh", "server start");
+    else
+      Process.Start("./build-tools.sh", "client start");
+  }
+  private static void Stop(bool server) {
+    if (server)
+      Process.Start("./build-tools.sh", "server stop");
+    else
+      Process.Start("./build-tools.sh", "client stop");
+  }
+
+  [MenuItem("Networking/Build")]
+  public static void Build() {
     UnityEngine.Debug.Log("Starting Build");
-    // The defines for this build.
-    string defines = "PP_SERVER";
-
-    // Save the old defines before we set the new defines.
-    // var oldDefines = PlayerSettings.GetScriptingDefineSymbolsForGroup(BuildTargetGroup.Standalone);
-    // PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Standalone, defines);
-
-    UnityEngine.Debug.Log("Building with the following defines " + defines);
-
-    // Build the project as a PP_SERVER.
-    string filename;
-    try {
-      UnityEngine.Debug.Log("Building Server");
-      filename = buildApplication();
-    } catch (System.Exception e) {
-      throw e;
-    }
-
-    // Set the defines back to how they where before we started poking around.
-    // PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Standalone, oldDefines);
-
-    return filename;
-  }
-
-  private static string buildApplication() {
     var options = new BuildPlayerOptions();
     // The list of scenes to use in the server build.
     options.scenes = new[]
@@ -76,14 +64,12 @@ public class ServerBuild {
         "Assets/Scenes/game-world.unity",
       };
 
-    // For windows put the build in builds\server.exe
 #if UNITY_STANDALONE_WIN
-      options.locationPathName = "builds\\server.exe";
+      options.locationPathName = "builds\\pp-game.exe";
         options.target = BuildTarget.StandaloneWindows64;
 
-      // For linux put the build in builds/server
 #elif UNITY_STANDALONE_LINUX
-    options.locationPathName = "builds/server";
+    options.locationPathName = "builds/pp-game";
     options.target = BuildTarget.StandaloneLinux64;
 
     // For everything else... throw a hissyfit.
@@ -94,11 +80,10 @@ public class ServerBuild {
 
     // Set the build target and extra options.
     options.targetGroup = BuildTargetGroup.Standalone;
-    options.options = BuildOptions.EnableHeadlessMode | BuildOptions.Development;
+    // options.options = BuildOptions.EnableHeadlessMode | BuildOptions.Development;
+    options.options = BuildOptions.Development;
 
     // Actually build the server.
     BuildPipeline.BuildPlayer(options);
-
-    return options.locationPathName;
   }
 }
