@@ -22,7 +22,6 @@ namespace PP.Entities.Player {
     }
     public override void Receive(LiteNetLib.Utils.NetDataReader reader) {
       var messageType = (PlayerMessages)reader.GetByte();
-      Debug.Log($"Received a packet of type {messageType}", this);
 
       if (messageType == PlayerMessages.UserDetails) {
         Messages.ReadDetails(reader, this);
