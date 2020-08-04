@@ -16,6 +16,9 @@ namespace PP.Networking {
     public static Server.GameServer Server;
     public static Client.GameClient Client;
 
+    public const string GAME_VERSION = "0.0.1_rip";
+    public const int TPS = 30;
+
     public bool Running {
       get {
         return Net != null && Net.IsRunning;
@@ -33,23 +36,27 @@ namespace PP.Networking {
     [HideInInspector] public ChatController Chat;
     [HideInInspector] public EntityController Entities;
 
+    private float tickStep = 1f / TPS;
+    private float lastTick = 0;
+
     public virtual void Init() {
       DontDestroyOnLoad(gameObject);
 
       cachedWriter = new NetDataWriter();
 
+      // Init all NetControllers in children.
       var components = GetComponentsInChildren<NetController>(false);
       controllers = new Dictionary<byte, NetController>();
       foreach (var component in components) {
         controllers.Add(component.GetId(), component);
+        component.Init(this);
       }
 
+      // Get the chat and entities controller and save them, we'll be using them quite a bit.
       Chat = GetController<ChatController>(ChatController.CONTROLLER_ID);
-      Chat.Init(this);
-
       Entities = GetController<EntityController>(EntityController.CONTROLLER_ID);
-      Entities.Init(this);
 
+      // Setup networking events and controllers.
       listener = new EventBasedNetListener();
 
       listener.NetworkReceiveEvent += OnNetworkReceive;
@@ -79,6 +86,11 @@ namespace PP.Networking {
         Debug.LogError("A packet was received without a controller id.", this);
     }
 
+    /// <summary>
+    /// Gets an inited controller used by this networker.
+    /// </summary>
+    /// <param name="id">The id of the controller.</param>
+    /// <returns>A controller ready to go.</returns>
     public T GetController<T>(byte id) where T : NetController {
       if (controllers.TryGetValue(id, out NetController c))
         return (T)c;
@@ -86,24 +98,39 @@ namespace PP.Networking {
         return null;
     }
 
-    internal virtual void Tick(float deltaTime) { }
+    internal virtual void Tick(float deltaTime) {
+      Entities.NetTick(deltaTime);
+    }
 
     private void Update() {
       if (Net != null && Net.IsRunning) {
         Net.PollEvents();
-        Tick(Time.deltaTime);
+
+        float time = Time.timeSinceLevelLoad;
+
+        if(lastTick + tickStep > time) {
+          Tick(time - lastTick);
+          lastTick = time;
+        }
       }
     }
 
-    internal abstract void Destroy();
     private void OnDestroy() {
-      Destroy();
+      Shutdown();
 
-      if (Chat != null)
-        Chat.Shutdown();
+      if(Net != null)
+        Net.Stop();
+    }
+    internal virtual void Shutdown() {
+      // Shutdown all controllers and clear the list.
+      if (controllers != null) {
+        foreach (var controller in controllers.Values)
+          controller.Shutdown();
+        controllers.Clear();
+      }
 
-      if (Entities != null)
-        Entities.Shutdown();
+      if (Net != null)
+        Net.DisconnectAll();
     }
 
 
@@ -120,8 +147,7 @@ namespace PP.Networking {
 
     public void SendToAll(NetDataWriter writer, DeliveryMethod options) => Net.SendToAll(writer, options);
 
-    public void SendToAll<T>(T packet, DeliveryMethod options) where T: INetSerializable
-    {
+    public void SendToAll<T>(T packet, DeliveryMethod options) where T : INetSerializable {
       cachedWriter.Reset();
       packet.Serialize(cachedWriter);
       Net.SendToAll(cachedWriter, options);

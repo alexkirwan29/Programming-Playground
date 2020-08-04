@@ -17,7 +17,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &250448915
 Transform:
   m_ObjectHideFlags: 0
@@ -98,7 +98,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2092722828
 Transform:
   m_ObjectHideFlags: 0
@@ -165,8 +165,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Id: 0
   OwnerId: 0
-  IsServer: 0
-  IsClient: 0
+  SkinUrl: 
 --- !u!143 &1793469709227441277
 CharacterController:
   m_ObjectHideFlags: 0
@@ -220,6 +219,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   head: {fileID: 2092722828}
+  playerMesh: {fileID: 6379462666324615756}
   Animator: {fileID: 5866666021355134783}
 --- !u!114 &1467819504725821868
 MonoBehaviour:
@@ -450,15 +450,21 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2cf6dfa5e0d42126a99137f4ac79d62f, type: 3}
---- !u!4 &543450653180544325 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 2cf6dfa5e0d42126a99137f4ac79d62f,
+--- !u!137 &6379462666324615756 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -2843909369972686622, guid: 2cf6dfa5e0d42126a99137f4ac79d62f,
     type: 3}
   m_PrefabInstance: {fileID: 561685166}
   m_PrefabAsset: {fileID: 0}
 --- !u!95 &5866666021355134783 stripped
 Animator:
   m_CorrespondingSourceObject: {fileID: 5866666021909216657, guid: 2cf6dfa5e0d42126a99137f4ac79d62f,
+    type: 3}
+  m_PrefabInstance: {fileID: 561685166}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &543450653180544325 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 2cf6dfa5e0d42126a99137f4ac79d62f,
     type: 3}
   m_PrefabInstance: {fileID: 561685166}
   m_PrefabAsset: {fileID: 0}

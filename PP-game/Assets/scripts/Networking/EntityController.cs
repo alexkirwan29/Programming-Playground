@@ -46,7 +46,7 @@ namespace PP.Networking {
 
       // Delete ALL spawnned entities.
       foreach (var id in entities.Keys)
-        DestroyEntity(id, true);
+        DestroyEntity(id);
 
       entities.Clear();
     }
@@ -59,7 +59,7 @@ namespace PP.Networking {
         var command = (EntityCommand)reader.GetByte();
 
         if (command == EntityCommand.Destroy) {
-          DestroyEntity(reader.GetUShort(), reader.GetBool());
+          DestroyEntity(reader.GetUShort());
         }
         else if (command == EntityCommand.Spawn) {
           SpawnEntity(reader);
@@ -83,12 +83,12 @@ namespace PP.Networking {
     /// <param name="owner">The owner of this new entity.</param>
     /// <param name="pos">The position to spawn this new entity at.</param>
     /// <param name="rot">The rotation to spawn this new entity at.</param>
-    public void SpawnEntity(ushort prefabId, ushort owner, Vector3 pos, Quaternion rot) {
+    public T SpawnEntity<T>(ushort prefabId, int owner, Vector3 pos, Quaternion rot) where T : NetworkedEntity {
       if (!Networker.IsServer)
         throw new NotServerException();
 
       // Spawn the prefab on the server.
-      var entity = Instantiate(idCounter++, prefabId, owner, pos, rot);
+      var entity = Instantiate<T>(idCounter++, prefabId, owner, pos, rot);
       entities.Add(entity.Id, entity);
 
       // Construct our packet.
@@ -101,9 +101,10 @@ namespace PP.Networking {
       QuaternionWriter.Serialise(writer, rot);
 
       // Send the packet to everyone.
-      net.SendToAll(writer, DeliveryMethod.ReliableUnordered);
-    }
+      net.SendToAll(writer, DeliveryMethod.ReliableOrdered);
 
+      return entity;
+    }
 
 
     /// <summary>
@@ -111,12 +112,12 @@ namespace PP.Networking {
     /// </summary>
     /// <param name="id">The Id of the entity we want to destroy.</param>
     /// <param name="silent">Should the entity "become dissapear" or go out with a bang!</param>
-    private void DestroyEntity(ushort id, bool silent = false) {
+    public void DestroyEntity(ushort id) {
       if (!entities.ContainsKey(id))
         Debug.LogWarning($"Entity [{id}] does not exist.", this);
 
       // Destroy the entity on the server or client.
-      entities[id].DestroyEntity(silent);
+      Destroy(entities[id].gameObject);
       entities.Remove(id);
 
       // Only send these changes if we are the server.
@@ -125,11 +126,29 @@ namespace PP.Networking {
         var writer = net.GetWriter(this);
         writer.Put((byte)EntityCommand.Destroy);
         writer.Put(id);
-        writer.Put(silent);
 
         // Send the packet to everyone.
         net.SendToAll(writer, DeliveryMethod.ReliableUnordered);
       }
+    }
+
+
+
+    /// <summary>
+    /// Prepare a message to be sent to a particular entity.
+    /// </summary>
+    /// <param name="writer">The NetDataWriter</param>
+    /// <param name="entity"The entity to prepare the message for></param>
+    public void PrepareMessage(NetDataWriter writer, NetworkedEntity entity) => PrepareMessage(writer, entity.Id);
+
+    /// <summary>
+    /// Prepare a message to be sent to a particular entity.
+    /// </summary>
+    /// <param name="writer">The NetDataWriter</param>
+    /// <param name="entity"The entity to prepare the message for></param>
+    public void PrepareMessage(NetDataWriter writer, ushort entity) {
+      writer.Put((byte)EntityCommand.Extra);
+      writer.Put(entity);
     }
 
 
@@ -146,35 +165,41 @@ namespace PP.Networking {
       // If an entity with this ID already exists, destroy it.
       if (entities.ContainsKey(id)) {
         Debug.LogWarning($"Entity {id} already exists, destroying and replacing.", this);
-        DestroyEntity(id, true);
+        DestroyEntity(id);
       }
 
       // Get the owner, prefabId, position and rotation of this prefab.
-      ushort owner = reader.GetUShort();
+      int owner = reader.GetInt();
       ushort prefabId = reader.GetUShort();
       Vector3 pos = Vector3Writer.Deserialise(reader);
       Quaternion rot = QuaternionWriter.Deserialise(reader);
 
-      // Create an instance of this prefab, put it in the list of entities and call spawn.
-      var entity = Instantiate(id, prefabId, owner, pos, rot);
+      // Create an instance of this prefab, put it in the list of entities.
+      var entity = Instantiate<NetworkedEntity>(id, prefabId, owner, pos, rot);
       entities.Add(id, entity);
-      entity.Spawn(reader);
     }
 
 
-
-    private NetworkedEntity Instantiate(ushort id, ushort prefabId, ushort owner, Vector3 pos, Quaternion rot) {
+    private T Instantiate<T>(ushort id, ushort prefabId, int owner, Vector3 pos, Quaternion rot) where T : NetworkedEntity {
+      Debug.Log("Instantiate " + prefabs.Count);
       if (prefabs.TryGetValue(prefabId, out NetworkedEntity prefab)) {
         // Instantiate the prefab.
         var go = (GameObject)Instantiate(prefab.gameObject, pos, rot);
 
         // Setup some stuff on the entity.
-        var entity = go.GetComponent<NetworkedEntity>();
+        var entity = go.GetComponent<T>();
         entity.Id = id;
         entity.OwnerId = owner;
+        entity.Spawnned();
         return entity;
       }
       return null;
+    }
+
+    internal void NetTick(float deltaTime) {
+      foreach (var entity in entities.Values) {
+        entity.NetTick(deltaTime);
+      }
     }
 
 
