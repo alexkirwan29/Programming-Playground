@@ -99,7 +99,7 @@ namespace PP.Networking {
     }
 
     internal virtual void Tick(float deltaTime) {
-      Entities.NetTick(deltaTime);
+      Entities.NetTick(deltaTime, 0);
     }
 
     private void Update() {
@@ -108,7 +108,7 @@ namespace PP.Networking {
 
         float time = Time.timeSinceLevelLoad;
 
-        if(lastTick + tickStep > time) {
+        if(lastTick + tickStep < time) {
           Tick(time - lastTick);
           lastTick = time;
         }

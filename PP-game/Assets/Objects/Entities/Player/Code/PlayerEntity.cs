@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using PP.Networking;
 using PP.Entities;
+using PP.Networking.Utils;
 
 using LiteNetLib.Utils;
 
@@ -11,21 +12,36 @@ namespace PP.Entities.Player {
 
     public enum PlayerMessages : byte {
       UserDetails,
+      SetIsMe,
+      MoveFrame
     }
-    public string SkinUrl;
+    private struct MoveFrame {
+      int frame;
+      Vector3 pos;
+      float horAngle;
+      float vertAngle;
+    }
 
-    internal override void Spawnned() {
-      if(PP.Networking.Client.GameClient.MyID == Id) {
-        if(TryGetComponent<Locomotion>(out var locomotion)) {
+    Dictionary<int, MoveFrame> frames = new Dictionary<int, MoveFrame>();
+
+    public string SkinUrl;
+    public bool IsMe;
+
+    private void OnMeChange() {
+      if (IsMe) {
+        if (TryGetComponent<Locomotion>(out var locomotion)) {
           locomotion.enabled = true;
         }
-        if(TryGetComponent<Look>(out var look)) {
+        if (TryGetComponent<Look>(out var look)) {
           look.enabled = true;
         }
       }
     }
-    public override void NetTick(float deltaTime) {
-      
+
+    public override void NetTick(float deltaTime, int frame) {
+      if(IsMe) {
+        
+      }
     }
     public override void Send(LiteNetLib.Utils.NetDataWriter writer) {
 
@@ -35,6 +51,16 @@ namespace PP.Entities.Player {
 
       if (messageType == PlayerMessages.UserDetails) {
         Messages.ReadDetails(reader, this);
+      }
+      else if (messageType == PlayerMessages.SetIsMe) {
+        IsMe = reader.GetBool();
+        OnMeChange();
+      }
+      else if (messageType == PlayerMessages.MoveFrame) {
+        
+      }
+      else {
+        Debug.LogError("Player Received an unknown message");
       }
     }
 

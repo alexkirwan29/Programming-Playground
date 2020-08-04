@@ -8,12 +8,13 @@ using LiteNetLib.Utils;
 namespace PP.Networking {
   public class NetworkedEntity : MonoBehaviour {
     public ushort Id;
-    public int OwnerId;
+    public ushort PrefabId;
+    public Networker Net;
 
-    internal virtual void Spawnned() {
-
+    internal virtual void Spawnned(Networker net) {
+      Net = net;
     }
-    public virtual void NetTick(float deltaTime) {
+    public virtual void NetTick(float deltaTime, int netFrame) {
 
     }
 

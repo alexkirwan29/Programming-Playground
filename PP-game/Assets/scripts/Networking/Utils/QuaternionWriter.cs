@@ -102,6 +102,8 @@ namespace PP.Networking.Utils {
 
       if (largestIndex == 3)
         return new Quaternion(a, b, c, d);
+
+      Debug.Log(largestIndex);
       
       throw new System.Exception("Failed to reconstruct a quaternion");
     }
