@@ -6,17 +6,21 @@ public class JSONContainer {
     public List<JSONContainer> JSONContainers = new List<JSONContainer>();
     public List<string> JSONContents = new List<string>();
 
+    
     public void ListContents() { ListContents(0); }
     public void ListContents(int index) {
         Debug.Log(index);
         foreach (JSONContainer i in JSONContainers) {
             GUI.BeginGroup(new Rect (new Vector2 (0,0), new Vector2(10,10)));
+            GUI.BeginGroup(new Rect (new Vector2 (0,0), new Vector2(20,20)));
+            EditorGUILayout.LabelField("index");
             i.ListContents(index + 1);
             GUI.EndGroup();
         }
 
         foreach (string i in JSONContents) {
             Debug.Log("STRING: " + i);
+            //Debug.Log("STRING: " + i);
         }
     }
 }
@@ -71,5 +75,8 @@ public class JSONEditor2 : EditorWindow {
         //foreach (JSONContainer i in JSON_Entries) {
         //    i.ListContents();
         //}
+        foreach (JSONContainer i in JSON_Entries) {
+            i.ListContents();
+        }
     }
 }
